@@ -2,7 +2,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, Smartphone } from "lucide-react";
+import { ExternalLink, Smartphone, Monitor } from "lucide-react";
+import { useState } from "react";
 
 interface PreviewData {
   profile: {
@@ -24,6 +25,8 @@ interface PreviewPaneProps {
 }
 
 export const PreviewPane = ({ data }: PreviewPaneProps) => {
+  const [viewMode, setViewMode] = useState<'mobile' | 'desktop'>('mobile');
+
   const getThemeClasses = () => {
     switch (data.theme) {
       case 'neon':
@@ -35,81 +38,133 @@ export const PreviewPane = ({ data }: PreviewPaneProps) => {
     }
   };
 
+  const getLinkAnimation = (index: number) => ({
+    animationDelay: `${index * 0.1}s`
+  });
+
   return (
     <div className="h-full p-4 bg-dark-elevated">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-white">Preview</h3>
+        <h3 className="font-semibold text-white">Preview em Tempo Real</h3>
         <div className="flex items-center space-x-2">
-          <Smartphone className="w-4 h-4 text-gray-400" />
-          <span className="text-xs text-gray-400">Mobile</span>
+          <button
+            onClick={() => setViewMode('mobile')}
+            className={`p-2 rounded ${viewMode === 'mobile' ? 'bg-neon-blue/20 text-neon-blue' : 'text-gray-400 hover:text-white'}`}
+          >
+            <Smartphone className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setViewMode('desktop')}
+            className={`p-2 rounded ${viewMode === 'desktop' ? 'bg-neon-blue/20 text-neon-blue' : 'text-gray-400 hover:text-white'}`}
+          >
+            <Monitor className="w-4 h-4" />
+          </button>
         </div>
       </div>
 
-      {/* Phone Frame */}
-      <div className="bg-gray-800 rounded-3xl p-2 max-w-sm mx-auto">
-        <div className={`${getThemeClasses()} rounded-2xl p-6 h-[600px] overflow-y-auto`}>
-          {/* Profile Section */}
-          <div className="text-center mb-6">
-            <Avatar className="w-20 h-20 mx-auto mb-3 ring-2 ring-neon-blue/50">
-              <AvatarImage src={data.profile.avatar} alt={data.profile.name} />
-              <AvatarFallback className="bg-gradient-to-br from-neon-blue to-neon-green text-black text-lg font-bold">
-                {data.profile.name.split(' ').map(n => n[0]).join('')}
-              </AvatarFallback>
-            </Avatar>
-            
-            <h2 className="text-lg font-bold text-white mb-2">
-              {data.profile.name}
-            </h2>
-            
-            <p className="text-sm text-gray-400 mb-3">
-              {data.profile.bio}
-            </p>
-
-            <Badge className="bg-gradient-to-r from-neon-blue to-neon-green text-black text-xs">
-              FREE
-            </Badge>
+      {/* Preview Container */}
+      <div className={`mx-auto ${viewMode === 'mobile' ? 'max-w-sm' : 'max-w-lg'}`}>
+        {viewMode === 'mobile' ? (
+          // Mobile Frame
+          <div className="bg-gray-800 rounded-3xl p-3 shadow-2xl">
+            <div className="bg-gray-900 rounded-2xl p-1 mb-2">
+              <div className="w-16 h-1 bg-gray-600 rounded-full mx-auto"></div>
+            </div>
+            <div className={`${getThemeClasses()} rounded-2xl p-6 h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600`}>
+              <PreviewContent data={data} />
+            </div>
           </div>
-
-          {/* Links */}
-          <div className="space-y-3">
-            {data.links.filter(link => link.active).length === 0 ? (
-              <Card className="bg-dark-surface/50 border-gray-700">
-                <CardContent className="p-4 text-center">
-                  <p className="text-gray-400 text-sm">Nenhum link ativo</p>
-                </CardContent>
-              </Card>
-            ) : (
-              data.links
-                .filter(link => link.active)
-                .map((link) => (
-                  <Card 
-                    key={link.id}
-                    className="bg-dark-surface/70 border-gray-700 hover:border-neon-blue/50 transition-all cursor-pointer"
-                  >
-                    <CardContent className="p-3 flex items-center justify-between">
-                      <span className="text-white text-sm font-medium">{link.title}</span>
-                      <ExternalLink className="w-3 h-3 text-gray-400" />
-                    </CardContent>
-                  </Card>
-                ))
-            )}
+        ) : (
+          // Desktop Frame
+          <div className="bg-gray-800 rounded-lg p-4 shadow-2xl">
+            <div className="flex items-center space-x-2 mb-4">
+              <div className="flex space-x-1">
+                <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+              </div>
+              <div className="flex-1 bg-gray-700 rounded px-3 py-1 text-xs text-gray-400">
+                linkmax.bio/{data.profile.name.toLowerCase().replace(' ', '')}
+              </div>
+            </div>
+            <div className={`${getThemeClasses()} rounded-lg p-8 h-[500px] overflow-y-auto`}>
+              <PreviewContent data={data} />
+            </div>
           </div>
-
-          {/* Footer */}
-          <div className="text-center mt-8 pt-4 border-t border-gray-700">
-            <p className="text-xs text-gray-500">
-              Criado com ❤️ no LinkMax.bio
-            </p>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Preview Info */}
       <div className="mt-4 text-center">
         <p className="text-xs text-gray-500">
-          Visualização em tempo real da sua página
+          Atualizações em tempo real • {data.links.filter(l => l.active).length} links ativos
         </p>
       </div>
     </div>
+  );
+};
+
+const PreviewContent = ({ data }: { data: PreviewData }) => {
+  return (
+    <>
+      {/* Profile Section */}
+      <div className="text-center mb-8 animate-fade-in">
+        <Avatar className="w-20 h-20 mx-auto mb-4 ring-2 ring-neon-blue/50">
+          <AvatarImage src={data.profile.avatar} alt={data.profile.name} />
+          <AvatarFallback className="bg-gradient-to-br from-neon-blue to-neon-green text-black text-lg font-bold">
+            {data.profile.name.split(' ').map(n => n[0]).join('')}
+          </AvatarFallback>
+        </Avatar>
+        
+        <h2 className="text-xl font-bold text-white mb-2">
+          {data.profile.name || "Seu Nome"}
+        </h2>
+        
+        <p className="text-sm text-gray-400 mb-4">
+          {data.profile.bio || "Sua biografia aqui"}
+        </p>
+
+        <Badge className="bg-gradient-to-r from-neon-blue to-neon-green text-black text-xs">
+          FREE
+        </Badge>
+      </div>
+
+      {/* Links */}
+      <div className="space-y-3 mb-8">
+        {data.links.filter(link => link.active).length === 0 ? (
+          <Card className="bg-dark-surface/50 border-gray-700 animate-pulse">
+            <CardContent className="p-6 text-center">
+              <div className="w-12 h-12 bg-gray-700 rounded-full mx-auto mb-3"></div>
+              <p className="text-gray-400 text-sm">Adicione seus primeiros links</p>
+              <p className="text-gray-500 text-xs mt-1">Eles aparecerão aqui automaticamente</p>
+            </CardContent>
+          </Card>
+        ) : (
+          data.links
+            .filter(link => link.active)
+            .map((link, index) => (
+              <Card 
+                key={link.id}
+                className="bg-dark-surface/70 border-gray-700 hover:border-neon-blue/50 transition-all cursor-pointer group animate-fade-in"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <CardContent className="p-4 flex items-center justify-between">
+                  <span className="text-white text-sm font-medium group-hover:text-neon-blue transition-colors">
+                    {link.title}
+                  </span>
+                  <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-neon-blue transition-colors" />
+                </CardContent>
+              </Card>
+            ))
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="text-center pt-4 border-t border-gray-700">
+        <p className="text-xs text-gray-500">
+          Criado com ❤️ no LinkMax.bio
+        </p>
+      </div>
+    </>
   );
 };

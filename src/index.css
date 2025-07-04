@@ -81,7 +81,7 @@
   }
 
   .link-item {
-    @apply relative group bg-dark-surface border border-gray-700 rounded-xl p-4 transition-all duration-300 hover:border-neon-blue/50 hover:shadow-lg hover:shadow-neon-blue/10 cursor-pointer;
+    @apply relative bg-dark-surface border border-gray-700 rounded-xl p-4 transition-all duration-300 hover:border-neon-blue/50 hover:shadow-lg hover:shadow-neon-blue/10 cursor-pointer;
   }
 
   .link-item:hover {
