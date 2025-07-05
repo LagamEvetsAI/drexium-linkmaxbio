@@ -1,10 +1,9 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Star, Zap, Globe, BarChart3, Palette, Video, MessageSquare } from "lucide-react";
+import { CheckCircle, Star, Zap, Globe, BarChart3, Palette, Video, MessageSquare, Eye } from "lucide-react";
 
 const Index = () => {
   const [selectedPlan, setSelectedPlan] = useState("free");
@@ -71,6 +70,12 @@ const Index = () => {
             <span className="text-xl font-bold neon-text">LinkMax.bio</span>
           </div>
           <div className="flex items-center space-x-4">
+            <Link to="/demo">
+              <Button variant="ghost" className="text-gray-300 hover:text-white">
+                <Eye className="w-4 h-4 mr-2" />
+                Ver Demo
+              </Button>
+            </Link>
             <Link to="/dashboard">
               <Button variant="ghost" className="text-gray-300 hover:text-white">
                 Entrar
@@ -98,11 +103,19 @@ const Index = () => {
             Crie uma página profissional para centralizar todos os seus links, 
             com analytics avançados e recursos exclusivos.
           </p>
-          <Link to="/dashboard">
-            <Button size="lg" className="btn-neon text-lg px-8 py-4">
-              Criar Minha Página
-            </Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Link to="/dashboard">
+              <Button size="lg" className="btn-neon text-lg px-8 py-4">
+                Criar Minha Página
+              </Button>
+            </Link>
+            <Link to="/demo">
+              <Button size="lg" variant="outline" className="text-lg px-8 py-4 border-gray-600 text-gray-300 hover:text-white hover:border-neon-blue">
+                <Eye className="w-5 h-5 mr-2" />
+                Ver Demonstração
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -132,7 +145,7 @@ const Index = () => {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-16 px-4 bg-dark-surface/30">
+      <section id="pricing" className="py-16 px-4 bg-dark-surface/30">
         <div className="container mx-auto">
           <h2 className="text-3xl font-bold text-center mb-4">
             Escolha Seu <span className="neon-text">Plano</span>
