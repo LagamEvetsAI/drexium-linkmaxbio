@@ -49,11 +49,25 @@ export const useProfile = () => {
     },
   });
 
+  const checkUsernameAvailability = async (username: string): Promise<boolean> => {
+    if (!username || username.length < 3) return false;
+    
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('username')
+      .eq('username', username)
+      .maybeSingle();
+
+    if (error) return false;
+    return !data; // Available if no data found
+  };
+
   return {
     profile,
     isLoading,
     error,
     updateProfile: updateProfileMutation.mutate,
     isUpdating: updateProfileMutation.isPending,
+    checkUsernameAvailability,
   };
 };
