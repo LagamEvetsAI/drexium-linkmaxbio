@@ -59,7 +59,18 @@ export const useProfile = () => {
       .maybeSingle();
 
     if (error) return false;
-    return !data; // Available if no data found
+    return !data;
+  };
+
+  const checkFirstLogin = () => {
+    const hasSeenTutorial = localStorage.getItem(`tutorial-seen-${user?.id}`);
+    return !hasSeenTutorial;
+  };
+
+  const markTutorialSeen = () => {
+    if (user?.id) {
+      localStorage.setItem(`tutorial-seen-${user.id}`, 'true');
+    }
   };
 
   return {
@@ -69,5 +80,7 @@ export const useProfile = () => {
     updateProfile: updateProfileMutation.mutate,
     isUpdating: updateProfileMutation.isPending,
     checkUsernameAvailability,
+    checkFirstLogin,
+    markTutorialSeen,
   };
 };

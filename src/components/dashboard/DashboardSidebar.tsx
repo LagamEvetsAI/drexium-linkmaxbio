@@ -8,17 +8,24 @@ import {
   BarChart3, 
   Crown, 
   ExternalLink,
-  Zap
+  Zap,
+  HelpCircle
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { DashboardView } from "@/pages/Dashboard";
+import { Tables } from "@/integrations/supabase/types";
+
+type Profile = Tables<'profiles'>;
 
 interface DashboardSidebarProps {
   activeView: DashboardView;
   onViewChange: (view: DashboardView) => void;
+  onTutorialOpen: () => void;
+  profile: Profile | null | undefined;
 }
 
-export const DashboardSidebar = ({ activeView, onViewChange }: DashboardSidebarProps) => {
+export const DashboardSidebar = ({ activeView, onViewChange, onTutorialOpen, profile }: DashboardSidebarProps) => {
   const menuItems = [
     { id: 'links' as DashboardView, label: 'Links', icon: LinkIcon },
     { id: 'profile' as DashboardView, label: 'Perfil', icon: User },
@@ -26,6 +33,10 @@ export const DashboardSidebar = ({ activeView, onViewChange }: DashboardSidebarP
     { id: 'analytics' as DashboardView, label: 'Analytics', icon: BarChart3, badge: 'PRO' },
     { id: 'plan' as DashboardView, label: 'Planos', icon: Crown },
   ];
+
+  const displayName = profile?.name || "Usuário";
+  const displayUsername = profile?.username || "username";
+  const displayAvatar = profile?.avatar_url || "";
 
   return (
     <div className="w-64 bg-dark-surface border-r border-gray-800 p-6">
@@ -40,15 +51,18 @@ export const DashboardSidebar = ({ activeView, onViewChange }: DashboardSidebarP
       {/* User Info */}
       <div className="mb-8 p-4 bg-dark-bg rounded-lg border border-gray-700">
         <div className="flex items-center space-x-3 mb-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-neon-blue to-neon-green rounded-full flex items-center justify-center">
-            <span className="text-black font-bold text-sm">JS</span>
-          </div>
-          <div>
-            <p className="font-medium text-white">João Silva</p>
+          <Avatar className="w-10 h-10">
+            <AvatarImage src={displayAvatar} alt={displayName} />
+            <AvatarFallback className="bg-gradient-to-br from-neon-blue to-neon-green text-black font-bold">
+              {displayName.split(' ').map(n => n[0]).join('').toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1 min-w-0">
+            <p className="font-medium text-white truncate">{displayName}</p>
             <p className="text-xs text-gray-400">Plano Free</p>
           </div>
         </div>
-        <Link to="/u/joaosilva">
+        <Link to={`/u/${displayUsername}`}>
           <Button variant="outline" size="sm" className="w-full text-xs">
             <ExternalLink className="w-3 h-3 mr-1" />
             Ver Página Pública
@@ -57,7 +71,7 @@ export const DashboardSidebar = ({ activeView, onViewChange }: DashboardSidebarP
       </div>
 
       {/* Navigation */}
-      <nav className="space-y-2">
+      <nav className="space-y-2 mb-8">
         {menuItems.map((item) => (
           <Button
             key={item.id}
@@ -81,8 +95,21 @@ export const DashboardSidebar = ({ activeView, onViewChange }: DashboardSidebarP
         ))}
       </nav>
 
+      {/* Tutorial Button */}
+      <div className="mb-8">
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full justify-start border-gray-700 text-gray-300 hover:text-white hover:bg-gray-800"
+          onClick={onTutorialOpen}
+        >
+          <HelpCircle className="w-4 h-4 mr-3" />
+          Tutorial
+        </Button>
+      </div>
+
       {/* Upgrade CTA */}
-      <div className="mt-8 p-4 bg-gradient-to-br from-neon-blue/10 to-neon-green/10 rounded-lg border border-neon-blue/20">
+      <div className="p-4 bg-gradient-to-br from-neon-blue/10 to-neon-green/10 rounded-lg border border-neon-blue/20">
         <h4 className="font-semibold text-white mb-2">Upgrade para Pro</h4>
         <p className="text-xs text-gray-400 mb-3">
           Desbloqueie recursos avançados e remova limitações.

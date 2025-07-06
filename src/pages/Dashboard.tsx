@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { LinkEditor } from "@/components/dashboard/LinkEditor";
 import { ProfileEditor } from "@/components/dashboard/ProfileEditor";
@@ -7,11 +7,16 @@ import { ThemeSelector } from "@/components/dashboard/ThemeSelector";
 import { PlanManager } from "@/components/dashboard/PlanManager";
 import { Analytics } from "@/components/dashboard/Analytics";
 import { PreviewPane } from "@/components/dashboard/PreviewPane";
+import { Tutorial } from "@/components/tutorial/Tutorial";
+import { useProfile } from "@/hooks/useProfile";
 
-export type DashboardView = 'links' | 'profile' | 'themes' | 'analytics' | 'plan';
+export type DashboardView = 'links' | 'profile' | 'themes' | 'analytics' | 'plan' | 'tutorial';
 
 const Dashboard = () => {
   const [activeView, setActiveView] = useState<DashboardView>('links');
+  const [showTutorial, setShowTutorial] = useState(false);
+  const { profile, checkFirstLogin, markTutorialSeen } = useProfile();
+  
   const [previewData, setPreviewData] = useState({
     profile: {
       name: "Seu Nome",
@@ -21,6 +26,36 @@ const Dashboard = () => {
     links: [],
     theme: "default"
   });
+
+  // Check if user is seeing the dashboard for the first time
+  useEffect(() => {
+    if (profile && checkFirstLogin()) {
+      setShowTutorial(true);
+    }
+  }, [profile, checkFirstLogin]);
+
+  // Update preview data when profile loads
+  useEffect(() => {
+    if (profile) {
+      setPreviewData(prev => ({
+        ...prev,
+        profile: {
+          name: profile.name || "Seu Nome",
+          bio: profile.bio || "Sua biografia aqui",
+          avatar: profile.avatar_url || ""
+        }
+      }));
+    }
+  }, [profile]);
+
+  const handleTutorialClose = () => {
+    setShowTutorial(false);
+    markTutorialSeen();
+  };
+
+  const handleTutorialOpen = () => {
+    setShowTutorial(true);
+  };
 
   const renderActiveView = () => {
     switch (activeView) {
@@ -39,7 +74,12 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-dark-bg flex">
-      <DashboardSidebar activeView={activeView} onViewChange={setActiveView} />
+      <DashboardSidebar 
+        activeView={activeView} 
+        onViewChange={setActiveView}
+        onTutorialOpen={handleTutorialOpen}
+        profile={profile}
+      />
       
       <div className="flex-1 flex">
         {/* Main Content */}
@@ -54,6 +94,9 @@ const Dashboard = () => {
           <PreviewPane data={previewData} />
         </div>
       </div>
+
+      {/* Tutorial Modal */}
+      <Tutorial open={showTutorial} onClose={handleTutorialClose} />
     </div>
   );
 };
