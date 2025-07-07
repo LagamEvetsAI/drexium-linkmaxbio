@@ -10,38 +10,45 @@ export const ExamplesSection = () => {
   const examples = [
     {
       title: "Influencer Digital",
-      description: "Página otimizada para criadores de conteúdo",
+      description: "Página otimizada para criadores de conteúdo com links para todas as redes sociais",
       category: "Social Media",
       preview: "https://images.unsplash.com/photo-1611224923853-80b023f02d71",
       features: ["Links para redes sociais", "Botão de contato", "Feed do Instagram", "Link para produtos"]
     },
     {
-      title: "Loja Online",
-      description: "Vitrine digital para e-commerce",
+      title: "Loja de Roupas",
+      description: "Vitrine digital completa para e-commerce de moda",
       category: "E-commerce",
       preview: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d",
       features: ["Catálogo de produtos", "Link para WhatsApp", "Formas de pagamento", "Localização da loja"]
     },
     {
       title: "Podcast",
-      description: "Central de episódios e conteúdos",
+      description: "Central de episódios e conteúdos para podcasters",
       category: "Mídia",
       preview: "https://images.unsplash.com/photo-1478737270239-2f02b77fc618",
       features: ["Últimos episódios", "Plataformas de streaming", "Redes sociais", "Contato para parcerias"]
     },
     {
       title: "Restaurante",
-      description: "Menu digital e informações",
+      description: "Menu digital e informações completas do estabelecimento",
       category: "Gastronomia",
       preview: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4",
       features: ["Cardápio digital", "Delivery", "Reservas", "Localização e horários"]
     },
     {
       title: "Freelancer",
-      description: "Portfolio e serviços profissionais",
+      description: "Portfolio profissional e serviços para freelancers",
       category: "Profissional",
       preview: "https://images.unsplash.com/photo-1559136555-9303baea8ebd",
       features: ["Portfolio", "Serviços oferecidos", "Depoimentos", "Formulário de contato"]
+    },
+    {
+      title: "Personal Trainer",
+      description: "Página para profissionais de educação física e saúde",
+      category: "Saúde & Fitness",
+      preview: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b",
+      features: ["Planos de treino", "Agendamento", "Dicas de saúde", "Depoimentos de alunos"]
     }
   ];
 
@@ -58,10 +65,10 @@ export const ExamplesSection = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-white">
-            Exemplos de Páginas
+            Veja modelos prontos que você pode usar
           </h2>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Veja como diferentes profissionais usam o LinkMax.bio para conectar sua audiência
+            Clique em qualquer exemplo para ver como funciona na prática
           </p>
         </div>
 
@@ -103,7 +110,7 @@ export const ExamplesSection = () => {
                       <DialogTrigger asChild>
                         <Button className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90 flex items-center gap-2">
                           <ExternalLink size={16} />
-                          Ver Exemplo
+                          Ver Exemplo Completo
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="bg-[#2C2C2C] border-gray-700 max-w-2xl">
@@ -114,12 +121,12 @@ export const ExamplesSection = () => {
                           <img 
                             src={examples[currentExample].preview} 
                             alt={examples[currentExample].title}
-                            className="w-full h-64 object-cover rounded-lg"
+                            className="w-full h-64 object-cover rounded-lg cursor-pointer hover:scale-105 transition-transform"
                           />
                           <p className="text-gray-300">{examples[currentExample].description}</p>
                           <div className="flex gap-2">
                             <Button className="bg-[#FFD700] text-black hover:bg-[#FFD700]/90" asChild>
-                              <a href="/demo" target="_blank">Ver Demo Completa</a>
+                              <a href="/demo" target="_blank">Ver Demo Interativa</a>
                             </Button>
                           </div>
                         </div>
@@ -129,13 +136,18 @@ export const ExamplesSection = () => {
                 </div>
 
                 <div className="order-1 md:order-2">
-                  <div className="relative">
+                  <div className="relative cursor-pointer group">
                     <img 
                       src={examples[currentExample].preview} 
                       alt={examples[currentExample].title}
-                      className="w-full h-80 object-cover rounded-xl shadow-lg"
+                      className="w-full h-80 object-cover rounded-xl shadow-lg group-hover:scale-105 transition-transform duration-300"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-xl"></div>
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="bg-[#FFD700] p-3 rounded-full">
+                        <ExternalLink className="text-black" size={24} />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -156,7 +168,7 @@ export const ExamplesSection = () => {
                 key={index}
                 onClick={() => setCurrentExample(index)}
                 className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  index === currentExample ? 'bg-[#FFD700]' : 'bg-gray-600'
+                  index === currentExample ? 'bg-[#FFD700] w-8' : 'bg-gray-600'
                 }`}
               />
             ))}

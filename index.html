@@ -1,29 +1,53 @@
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>LinkMax.bio - Sua página de links personalizada</title>
-    <meta name="description" content="Crie sua página de links personalizada com LinkMax.bio" />
+    
+    <!-- SEO Meta Tags -->
+    <title>LinkMax.bio - Uma página para todos os seus links | Melhor que Linktree</title>
+    <meta name="description" content="Crie sua página de links profissional com o LinkMax.bio. Mais completo que Linktree, por um preço menor. Analytics, domínio próprio, temas ilimitados e muito mais!" />
+    <meta name="keywords" content="linktree, bio link, página de links, redes sociais, influencer, link na bio, instagram, tiktok" />
     <meta name="author" content="LinkMax.bio" />
-
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-
-    <meta property="og:title" content="LinkMax.bio - Sua página de links personalizada" />
-    <meta property="og:description" content="Crie sua página de links personalizada com recursos avançados" />
+    
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@linkmaxbio" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta property="og:url" content="https://linkmax.bio/" />
+    <meta property="og:title" content="LinkMax.bio - Uma página para todos os seus links" />
+    <meta property="og:description" content="Crie sua página de links profissional. Mais completo que Linktree, por um preço menor!" />
+    <meta property="og:image" content="https://linkmax.bio/og-image.png" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://linkmax.bio/" />
+    <meta property="twitter:title" content="LinkMax.bio - Uma página para todos os seus links" />
+    <meta property="twitter:description" content="Crie sua página de links profissional. Mais completo que Linktree, por um preço menor!" />
+    <meta property="twitter:image" content="https://linkmax.bio/og-image.png" />
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "LinkMax.bio",
+      "applicationCategory": "WebApplication",
+      "description": "Plataforma para criar páginas de links profissionais para redes sociais",
+      "url": "https://linkmax.bio",
+      "author": {
+        "@type": "Organization",
+        "name": "LinkMax.bio"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "BRL"
+      }
+    }
+    </script>
   </head>
-
-  <body class="dark">
+  <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

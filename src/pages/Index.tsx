@@ -4,6 +4,7 @@ import { NavigationHeader } from "@/components/landing/NavigationHeader";
 import { FloatingButtons } from "@/components/landing/FloatingButtons";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { DifferentialsSection } from "@/components/landing/DifferentialsSection";
+import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
 import { PlansSection } from "@/components/landing/PlansSection";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { ExamplesSection } from "@/components/landing/ExamplesSection";
@@ -30,6 +31,7 @@ const Index = () => {
       <main>
         <HeroSection />
         <DifferentialsSection />
+        <HowItWorksSection />
         <PlansSection />
         <TestimonialsSection />
         <ExamplesSection />

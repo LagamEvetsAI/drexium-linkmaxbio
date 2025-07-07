@@ -23,16 +23,25 @@ export const FloatingButtons = () => {
       <Button
         className="w-14 h-14 rounded-full bg-green-500 hover:bg-green-600 shadow-lg animate-pulse-neon"
         onClick={() => window.open('https://wa.me/5511999999999', '_blank')}
+        title="Falar no WhatsApp"
       >
         <MessageCircle size={20} />
       </Button>
 
       {/* Create Page Button */}
       <Link to="/auth">
-        <Button className="w-14 h-14 rounded-full bg-[#FFD700] text-black hover:bg-[#FFD700]/90 shadow-lg hover:scale-110 transition-transform">
+        <Button 
+          className="w-14 h-14 rounded-full bg-[#FFD700] text-black hover:bg-[#FFD700]/90 shadow-lg hover:scale-110 transition-transform animate-pulse-neon"
+          title="Comece Agora"
+        >
           <Plus size={20} />
         </Button>
       </Link>
+
+      {/* Floating CTA */}
+      <div className="bg-[#FFD700] text-black px-4 py-2 rounded-full shadow-lg animate-pulse-neon whitespace-nowrap text-sm font-bold">
+        Comece Agora
+      </div>
     </div>
   );
 };
