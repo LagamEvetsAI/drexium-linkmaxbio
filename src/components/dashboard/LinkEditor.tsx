@@ -13,66 +13,50 @@ import {
   ExternalLink, 
   Edit, 
   Trash2, 
-  Eye,
-  EyeOff
 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-
-interface Link {
-  id: number;
-  title: string;
-  url: string;
-  active: boolean;
-  clicks?: number;
-}
+import { useLinks } from "@/hooks/useLinks";
 
 interface LinkEditorProps {
-  onUpdate: (links: Link[]) => void;
+  onUpdate: (links: any[]) => void;
 }
 
 export const LinkEditor = ({ onUpdate }: LinkEditorProps) => {
-  const { toast } = useToast();
-  const [links, setLinks] = useState<Link[]>([
-    { id: 1, title: "Meu Portfólio", url: "https://exemplo.com", active: true, clicks: 42 },
-    { id: 2, title: "YouTube", url: "https://youtube.com", active: true, clicks: 28 },
-    { id: 3, title: "Instagram", url: "https://instagram.com", active: false, clicks: 15 },
-  ]);
+  const { 
+    links, 
+    createLink, 
+    updateLink, 
+    deleteLink, 
+    isLoading,
+    isCreating,
+    isUpdating,
+    isDeleting 
+  } = useLinks();
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingLink, setEditingLink] = useState<Link | null>(null);
+  const [editingLink, setEditingLink] = useState<any>(null);
   const [formData, setFormData] = useState({ title: "", url: "" });
+
+  // Update parent component when links change
+  useState(() => {
+    onUpdate(links);
+  }, [links, onUpdate]);
 
   const handleAddLink = () => {
     if (!formData.title || !formData.url) {
-      toast({
-        title: "Erro",
-        description: "Preencha todos os campos",
-        variant: "destructive",
-      });
       return;
     }
 
-    const newLink: Link = {
-      id: Date.now(),
+    createLink({
       title: formData.title,
       url: formData.url,
       active: true,
-      clicks: 0
-    };
+    });
 
-    const updatedLinks = [...links, newLink];
-    setLinks(updatedLinks);
-    onUpdate(updatedLinks);
     setFormData({ title: "", url: "" });
     setIsDialogOpen(false);
-    
-    toast({
-      title: "Sucesso",
-      description: "Link adicionado com sucesso!",
-    });
   };
 
-  const handleEditLink = (link: Link) => {
+  const handleEditLink = (link: any) => {
     setEditingLink(link);
     setFormData({ title: link.title, url: link.url });
     setIsDialogOpen(true);
@@ -81,41 +65,26 @@ export const LinkEditor = ({ onUpdate }: LinkEditorProps) => {
   const handleUpdateLink = () => {
     if (!editingLink || !formData.title || !formData.url) return;
 
-    const updatedLinks = links.map(link => 
-      link.id === editingLink.id 
-        ? { ...link, title: formData.title, url: formData.url }
-        : link
-    );
-    
-    setLinks(updatedLinks);
-    onUpdate(updatedLinks);
+    updateLink({
+      id: editingLink.id,
+      title: formData.title,
+      url: formData.url,
+    });
+
     setEditingLink(null);
     setFormData({ title: "", url: "" });
     setIsDialogOpen(false);
-    
-    toast({
-      title: "Sucesso",
-      description: "Link atualizado com sucesso!",
-    });
   };
 
-  const handleDeleteLink = (id: number) => {
-    const updatedLinks = links.filter(link => link.id !== id);
-    setLinks(updatedLinks);
-    onUpdate(updatedLinks);
-    
-    toast({
-      title: "Link removido",
-      description: "O link foi removido da sua página.",
-    });
+  const handleDeleteLink = (id: string) => {
+    deleteLink(id);
   };
 
-  const handleToggleActive = (id: number) => {
-    const updatedLinks = links.map(link => 
-      link.id === id ? { ...link, active: !link.active } : link
-    );
-    setLinks(updatedLinks);
-    onUpdate(updatedLinks);
+  const handleToggleActive = (id: string, active: boolean) => {
+    updateLink({
+      id,
+      active: !active,
+    });
   };
 
   const closeDialog = () => {
@@ -123,6 +92,14 @@ export const LinkEditor = ({ onUpdate }: LinkEditorProps) => {
     setEditingLink(null);
     setFormData({ title: "", url: "" });
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="w-8 h-8 border-2 border-neon-blue border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -134,9 +111,9 @@ export const LinkEditor = ({ onUpdate }: LinkEditorProps) => {
         
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="btn-neon">
+            <Button className="btn-neon" disabled={isCreating}>
               <Plus className="w-4 h-4 mr-2" />
-              Adicionar Link
+              {isCreating ? "Adicionando..." : "Adicionar Link"}
             </Button>
           </DialogTrigger>
           <DialogContent className="bg-dark-surface border-gray-700">
@@ -170,8 +147,12 @@ export const LinkEditor = ({ onUpdate }: LinkEditorProps) => {
                 <Button 
                   onClick={editingLink ? handleUpdateLink : handleAddLink}
                   className="flex-1 btn-neon"
+                  disabled={isCreating || isUpdating}
                 >
-                  {editingLink ? 'Atualizar' : 'Adicionar'}
+                  {editingLink 
+                    ? (isUpdating ? 'Atualizando...' : 'Atualizar')
+                    : (isCreating ? 'Adicionando...' : 'Adicionar')
+                  }
                 </Button>
                 <Button 
                   variant="outline" 
@@ -222,15 +203,10 @@ export const LinkEditor = ({ onUpdate }: LinkEditorProps) => {
                   </div>
 
                   <div className="flex items-center space-x-2">
-                    {link.clicks !== undefined && (
-                      <Badge variant="secondary" className="bg-gray-800 text-gray-300">
-                        {link.clicks} cliques
-                      </Badge>
-                    )}
-                    
                     <Switch
                       checked={link.active}
-                      onCheckedChange={() => handleToggleActive(link.id)}
+                      onCheckedChange={() => handleToggleActive(link.id, link.active)}
+                      disabled={isUpdating}
                     />
                     
                     <Button
@@ -238,6 +214,7 @@ export const LinkEditor = ({ onUpdate }: LinkEditorProps) => {
                       size="sm"
                       onClick={() => handleEditLink(link)}
                       className="text-gray-400 hover:text-white"
+                      disabled={isUpdating}
                     >
                       <Edit className="w-4 h-4" />
                     </Button>
@@ -247,6 +224,7 @@ export const LinkEditor = ({ onUpdate }: LinkEditorProps) => {
                       size="sm"
                       onClick={() => handleDeleteLink(link.id)}
                       className="text-red-400 hover:text-red-300"
+                      disabled={isDeleting}
                     >
                       <Trash2 className="w-4 h-4" />
                     </Button>
@@ -256,13 +234,6 @@ export const LinkEditor = ({ onUpdate }: LinkEditorProps) => {
             </Card>
           ))
         )}
-      </div>
-
-      {/* Save Button */}
-      <div className="flex justify-end">
-        <Button className="btn-neon">
-          Salvar LinkTree
-        </Button>
       </div>
     </div>
   );

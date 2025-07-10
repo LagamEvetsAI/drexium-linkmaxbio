@@ -51,6 +51,15 @@ export const ProfileEditor = ({ onUpdate }: ProfileEditorProps) => {
         avatar_url: profile.avatar_url || "",
         username: profile.username || ""
       });
+
+      // Load social links from profile
+      if (profile.social_links && Array.isArray(profile.social_links)) {
+        const savedSocialLinks = profile.social_links as any[];
+        setSocialLinks(prev => prev.map(link => {
+          const saved = savedSocialLinks.find(s => s.platform === link.platform);
+          return saved ? { ...link, ...saved } : link;
+        }));
+      }
     }
   }, [profile]);
 
@@ -127,6 +136,7 @@ export const ProfileEditor = ({ onUpdate }: ProfileEditorProps) => {
       bio: formData.bio,
       avatar_url: formData.avatar_url,
       username: formData.username,
+      social_links: socialLinks,
     });
 
     toast({
