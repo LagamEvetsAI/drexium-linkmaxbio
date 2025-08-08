@@ -46,7 +46,7 @@ const Dashboard = () => {
           bio: profile.bio || "Sua biografia aqui",
           avatar: profile.avatar_url || ""
         },
-        theme: profile.theme || "default"
+        theme: (profile as any).theme || "default" // Safely access theme property
       }));
     }
   }, [profile]);

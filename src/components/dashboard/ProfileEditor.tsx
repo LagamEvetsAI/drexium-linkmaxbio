@@ -52,11 +52,11 @@ export const ProfileEditor = ({ onUpdate }: ProfileEditorProps) => {
         username: profile.username || ""
       });
 
-      // Load social links from profile
-      if (profile.social_links && Array.isArray(profile.social_links)) {
-        const savedSocialLinks = profile.social_links as any[];
+      // Load social links from profile - safely handle missing property
+      const profileSocialLinks = (profile as any).social_links;
+      if (profileSocialLinks && Array.isArray(profileSocialLinks)) {
         setSocialLinks(prev => prev.map(link => {
-          const saved = savedSocialLinks.find(s => s.platform === link.platform);
+          const saved = profileSocialLinks.find((s: any) => s.platform === link.platform);
           return saved ? { ...link, ...saved } : link;
         }));
       }
@@ -131,13 +131,18 @@ export const ProfileEditor = ({ onUpdate }: ProfileEditorProps) => {
       return;
     }
 
-    updateProfile({
+    // Create update object with only known properties
+    const updateData: any = {
       name: formData.name,
       bio: formData.bio,
       avatar_url: formData.avatar_url,
       username: formData.username,
-      social_links: socialLinks,
-    });
+    };
+
+    // Add social_links only if the profile supports it
+    updateData.social_links = socialLinks;
+
+    updateProfile(updateData);
 
     toast({
       title: "Perfil salvo",

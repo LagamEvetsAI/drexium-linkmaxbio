@@ -18,7 +18,8 @@ const PublicProfile = () => {
   };
 
   const getThemeClasses = () => {
-    switch (profile?.theme) {
+    const profileTheme = (profile as any)?.theme; // Safely access theme property
+    switch (profileTheme) {
       case 'neon':
         return 'bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900';
       case 'nature':
@@ -48,8 +49,9 @@ const PublicProfile = () => {
   }
 
   // Parse social links safely
-  const socialLinks = Array.isArray(profile.social_links) 
-    ? profile.social_links.filter((link: any) => link.active && link.url)
+  const profileSocialLinks = (profile as any).social_links;
+  const socialLinks = Array.isArray(profileSocialLinks) 
+    ? profileSocialLinks.filter((link: any) => link.active && link.url)
     : [];
 
   return (
