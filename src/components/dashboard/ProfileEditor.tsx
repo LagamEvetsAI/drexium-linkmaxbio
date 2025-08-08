@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -121,6 +120,24 @@ export const ProfileEditor = ({ onUpdate }: ProfileEditorProps) => {
     });
   };
 
+  const getUsernameStatusMessage = () => {
+    switch (usernameStatus) {
+      case 'checking':
+        return 'Verificando disponibilidade...';
+      case 'available':
+        return 'Nome disponível!';
+      case 'taken':
+        return 'Nome já está em uso';
+      case 'invalid':
+        return 'Mínimo 3 caracteres, apenas letras e números';
+      default:
+        if (formData.username) {
+          return `Seu link: linkmax.bio/u/${formData.username}`;
+        }
+        return 'Configure um nome de usuário para ativar sua página pública';
+    }
+  };
+
   const handleSave = () => {
     if (usernameStatus === 'taken' || usernameStatus === 'invalid') {
       toast({
@@ -144,9 +161,13 @@ export const ProfileEditor = ({ onUpdate }: ProfileEditorProps) => {
 
     updateProfile(updateData);
 
+    const successMessage = formData.username 
+      ? "Perfil salvo! Sua página pública está disponível em linkmax.bio/u/" + formData.username
+      : "Perfil salvo! Configure um nome de usuário para ativar sua página pública.";
+
     toast({
       title: "Perfil salvo",
-      description: "Suas informações foram atualizadas com sucesso!",
+      description: successMessage,
     });
   };
 
@@ -165,21 +186,6 @@ export const ProfileEditor = ({ onUpdate }: ProfileEditorProps) => {
         return <X className="w-4 h-4 text-red-500" />;
       default:
         return null;
-    }
-  };
-
-  const getUsernameStatusMessage = () => {
-    switch (usernameStatus) {
-      case 'checking':
-        return 'Verificando disponibilidade...';
-      case 'available':
-        return 'Nome disponível!';
-      case 'taken':
-        return 'Nome já está em uso';
-      case 'invalid':
-        return 'Mínimo 3 caracteres, apenas letras e números';
-      default:
-        return `Seu link: linkmax.bio/u/${formData.username || 'username'}`;
     }
   };
 
@@ -247,10 +253,17 @@ export const ProfileEditor = ({ onUpdate }: ProfileEditorProps) => {
             <p className={`text-xs mt-1 ${
               usernameStatus === 'available' ? 'text-green-500' :
               usernameStatus === 'taken' || usernameStatus === 'invalid' ? 'text-red-500' :
-              'text-gray-500'
+              formData.username ? 'text-gray-500' : 'text-yellow-500'
             }`}>
               {getUsernameStatusMessage()}
             </p>
+            {!formData.username && (
+              <div className="mt-2 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                <p className="text-xs text-yellow-400">
+                  ⚠️ Sua página pública não estará acessível até que você configure um nome de usuário.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Bio */}

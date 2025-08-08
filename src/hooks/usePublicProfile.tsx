@@ -2,22 +2,22 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
-export const usePublicProfile = (slug: string) => {
+export const usePublicProfile = (identifier: string) => {
   const { data: profile, isLoading: profileLoading, error: profileError } = useQuery({
-    queryKey: ['public-profile', slug],
+    queryKey: ['public-profile', identifier],
     queryFn: async () => {
-      if (!slug) return null;
+      if (!identifier) return null;
       
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('slug', slug)
-        .single();
+        .or(`username.eq.${identifier},slug.eq.${identifier}`)
+        .maybeSingle();
 
       if (error) throw error;
       return data;
     },
-    enabled: !!slug,
+    enabled: !!identifier,
   });
 
   const { data: links = [], isLoading: linksLoading, error: linksError } = useQuery({

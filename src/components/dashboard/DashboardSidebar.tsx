@@ -38,6 +38,20 @@ export const DashboardSidebar = ({ activeView, onViewChange, onTutorialOpen, pro
   const displayUsername = profile?.username || "username";
   const displayAvatar = profile?.avatar_url || "";
 
+  // Determine the public URL - prioritize username over slug
+  const getPublicUrl = () => {
+    if (profile?.username) {
+      return `/u/${profile.username}`;
+    }
+    if (profile?.slug) {
+      return `/u/${profile.slug}`;
+    }
+    return null;
+  };
+
+  const publicUrl = getPublicUrl();
+  const canViewPublicPage = publicUrl !== null;
+
   return (
     <div className="w-64 bg-dark-surface border-r border-gray-800 p-6">
       {/* Logo */}
@@ -62,12 +76,25 @@ export const DashboardSidebar = ({ activeView, onViewChange, onTutorialOpen, pro
             <p className="text-xs text-gray-400">Plano Free</p>
           </div>
         </div>
-        <Link to={`/u/${displayUsername}`}>
-          <Button variant="outline" size="sm" className="w-full text-xs">
+        {canViewPublicPage ? (
+          <Link to={publicUrl}>
+            <Button variant="outline" size="sm" className="w-full text-xs">
+              <ExternalLink className="w-3 h-3 mr-1" />
+              Ver Página Pública
+            </Button>
+          </Link>
+        ) : (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full text-xs opacity-50 cursor-not-allowed" 
+            disabled
+            title="Configure seu nome de usuário no perfil para ativar sua página pública"
+          >
             <ExternalLink className="w-3 h-3 mr-1" />
-            Ver Página Pública
+            Configure Perfil
           </Button>
-        </Link>
+        )}
       </div>
 
       {/* Navigation */}
