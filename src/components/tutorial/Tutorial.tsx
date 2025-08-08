@@ -2,9 +2,10 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, EyeOff } from "lucide-react";
 import { TutorialStep } from "./TutorialStep";
 import { tutorialSteps } from "./tutorialData";
+import { useProfile } from "@/hooks/useProfile";
 
 interface TutorialProps {
   open: boolean;
@@ -13,6 +14,7 @@ interface TutorialProps {
 
 export const Tutorial = ({ open, onClose }: TutorialProps) => {
   const [currentStep, setCurrentStep] = useState(0);
+  const { skipTutorialPermanently } = useProfile();
 
   const nextStep = () => {
     if (currentStep < tutorialSteps.length - 1) {
@@ -31,6 +33,11 @@ export const Tutorial = ({ open, onClose }: TutorialProps) => {
     onClose();
   };
 
+  const handleSkipPermanently = () => {
+    skipTutorialPermanently();
+    handleClose();
+  };
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-dark-surface border-gray-700">
@@ -38,14 +45,25 @@ export const Tutorial = ({ open, onClose }: TutorialProps) => {
           <DialogTitle className="text-2xl font-bold text-white">
             Tutorial LinkMax.bio - Passo {currentStep + 1} de {tutorialSteps.length}
           </DialogTitle>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleClose}
-            className="text-gray-400 hover:text-white"
-          >
-            <X className="w-4 h-4" />
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSkipPermanently}
+              className="text-gray-400 hover:text-white border-gray-600 hover:bg-gray-700 flex items-center gap-2"
+            >
+              <EyeOff className="w-4 h-4" />
+              Não mostrar mais
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleClose}
+              className="text-gray-400 hover:text-white"
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
         </DialogHeader>
 
         <div className="mt-6">

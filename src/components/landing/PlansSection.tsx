@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Check, Star } from "lucide-react";
+import { Check, Star, Clock } from "lucide-react";
 
 export const PlansSection = () => {
   const plans = [
@@ -21,11 +21,12 @@ export const PlansSection = () => {
       ],
       popular: false,
       buttonText: "Começar Grátis",
-      details: "Ideal para quem está começando e quer testar a plataforma. Inclui as funcionalidades essenciais para criar sua primeira página de links."
+      details: "Ideal para quem está começando e quer testar a plataforma. Inclui as funcionalidades essenciais para criar sua primeira página de links.",
+      available: true
     },
     {
       name: "Pro",
-      price: "R$ 9,90",
+      price: "R$ --",
       period: "/mês",
       description: "Mais popular",
       features: [
@@ -39,12 +40,13 @@ export const PlansSection = () => {
         "Integração com redes sociais"
       ],
       popular: true,
-      buttonText: "Escolher Pro",
-      details: "O plano mais completo para profissionais e empresas. Inclui todas as funcionalidades avançadas e suporte prioritário."
+      buttonText: "Em Breve",
+      details: "O plano mais completo para profissionais e empresas. Inclui todas as funcionalidades avançadas e suporte prioritário.",
+      available: false
     },
     {
       name: "Premium",
-      price: "R$ 19,90",
+      price: "R$ --",
       period: "/mês",
       description: "Para empresas",
       features: [
@@ -57,8 +59,9 @@ export const PlansSection = () => {
         "Backup automático"
       ],
       popular: false,
-      buttonText: "Escolher Premium",
-      details: "Solução empresarial completa com recursos avançados de analytics, API personalizada e suporte dedicado 24/7."
+      buttonText: "Em Breve",
+      details: "Solução empresarial completa com recursos avançados de analytics, API personalizada e suporte dedicado 24/7.",
+      available: false
     }
   ];
 
@@ -72,6 +75,19 @@ export const PlansSection = () => {
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
             Planos flexíveis para todas as necessidades. Comece grátis e faça upgrade quando precisar.
           </p>
+          
+          {/* Banner sobre planos indisponíveis */}
+          <div className="mt-8 mb-8 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/30 rounded-xl p-4 max-w-3xl mx-auto">
+            <div className="flex items-center justify-center gap-3">
+              <Clock className="text-yellow-400" size={24} />
+              <div className="text-center">
+                <p className="text-yellow-100 font-semibold">Planos Pagos em Desenvolvimento</p>
+                <p className="text-yellow-200/80 text-sm">
+                  Os planos Pro e Premium estão sendo finalizados. Cadastre-se gratuitamente e seja notificado quando estiverem disponíveis!
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
@@ -80,7 +96,7 @@ export const PlansSection = () => {
               plan.popular 
                 ? 'border-[#FFD700] shadow-lg shadow-[#FFD700]/25' 
                 : 'border-gray-700 hover:border-[#FFD700]/50'
-            }`}>
+            } ${!plan.available ? 'opacity-75' : ''}`}>
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                   <div className="bg-[#FFD700] text-black px-4 py-2 rounded-full text-sm font-bold flex items-center gap-1">
@@ -90,11 +106,21 @@ export const PlansSection = () => {
                 </div>
               )}
 
+              {!plan.available && (
+                <div className="absolute -top-4 right-4">
+                  <div className="bg-yellow-500 text-black px-3 py-1 rounded-full text-xs font-bold">
+                    Em Breve
+                  </div>
+                </div>
+              )}
+
               <div className="text-center mb-8">
                 <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
                 <p className="text-gray-400 mb-4">{plan.description}</p>
                 <div className="mb-6">
-                  <span className="text-4xl font-bold text-[#FFD700]">{plan.price}</span>
+                  <span className={`text-4xl font-bold ${plan.available ? 'text-[#FFD700]' : 'text-gray-500'}`}>
+                    {plan.price}
+                  </span>
                   <span className="text-gray-400">{plan.period}</span>
                 </div>
               </div>
@@ -109,15 +135,20 @@ export const PlansSection = () => {
               </ul>
 
               <div className="space-y-3">
-                <Link to="/auth" className="block">
-                  <Button className={`w-full py-3 font-semibold rounded-xl transition-all duration-300 ${
-                    plan.popular 
-                      ? 'bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:scale-105' 
-                      : 'bg-gray-700 text-white hover:bg-gray-600'
-                  }`}>
+                {plan.available ? (
+                  <Link to="/auth" className="block">
+                    <Button className="w-full py-3 font-semibold rounded-xl transition-all duration-300 bg-[#FFD700] text-black hover:bg-[#FFD700]/90 hover:scale-105">
+                      {plan.buttonText}
+                    </Button>
+                  </Link>
+                ) : (
+                  <Button 
+                    disabled 
+                    className="w-full py-3 font-semibold rounded-xl bg-gray-600 text-gray-400 cursor-not-allowed"
+                  >
                     {plan.buttonText}
                   </Button>
-                </Link>
+                )}
 
                 <Dialog>
                   <DialogTrigger asChild>

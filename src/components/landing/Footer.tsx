@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
@@ -32,9 +31,19 @@ export const Footer = () => {
             <Link to="/" className="text-3xl font-bold bg-gradient-to-r from-neon-blue to-neon-green bg-clip-text text-transparent mb-4 block">
               LinkMax.bio
             </Link>
-            <p className="text-gray-400 mb-6 max-w-md">
+            <p className="text-gray-400 mb-4 max-w-md">
               A plataforma mais completa para conectar sua audiência. Crie sua página de links profissional em minutos.
             </p>
+            
+            {/* Drexium Tech branding */}
+            <div className="mb-6 p-3 bg-[#2C2C2C] rounded-lg border border-gray-700">
+              <p className="text-sm text-gray-300">
+                <span className="text-[#FFD700] font-semibold">Desenvolvido por</span>
+              </p>
+              <p className="text-white font-bold text-lg">Drexium Tech</p>
+              <p className="text-xs text-gray-400">Soluções tecnológicas inovadoras</p>
+            </div>
+            
             <div className="flex gap-4">
               {socialLinks.map((social, index) => (
                 <a
@@ -91,12 +100,17 @@ export const Footer = () => {
         {/* Bottom Bar */}
         <div className="border-t border-gray-800 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-gray-400 text-sm">
-              © 2024 LinkMax.bio. Todos os direitos reservados.
-            </p>
+            <div className="text-center md:text-left">
+              <p className="text-gray-400 text-sm mb-1">
+                © 2024 LinkMax.bio. Todos os direitos reservados.
+              </p>
+              <p className="text-xs text-gray-500">
+                Desenvolvido com ❤️ pela <span className="text-[#FFD700]">Drexium Tech</span>
+              </p>
+            </div>
             <div className="flex items-center gap-6 text-sm">
               <span className="text-[#FFD700] font-semibold">
-                💰 Satisfação garantida ou seu dinheiro de volta
+                💰 Garantia incondicional de 7 dias
               </span>
               <span className="text-gray-400">
                 🔒 Pagamento 100% seguro

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -76,11 +75,19 @@ export const useProfile = () => {
 
   const checkFirstLogin = () => {
     const hasSeenTutorial = localStorage.getItem(`tutorial-seen-${user?.id}`);
-    return !hasSeenTutorial;
+    const skipTutorial = localStorage.getItem(`skip-tutorial-${user?.id}`);
+    return !hasSeenTutorial && !skipTutorial;
   };
 
   const markTutorialSeen = () => {
     if (user?.id) {
+      localStorage.setItem(`tutorial-seen-${user.id}`, 'true');
+    }
+  };
+
+  const skipTutorialPermanently = () => {
+    if (user?.id) {
+      localStorage.setItem(`skip-tutorial-${user.id}`, 'true');
       localStorage.setItem(`tutorial-seen-${user.id}`, 'true');
     }
   };
@@ -102,5 +109,6 @@ export const useProfile = () => {
     checkUsernameAvailability,
     checkFirstLogin,
     markTutorialSeen,
+    skipTutorialPermanently,
   };
 };
