@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,6 +45,7 @@ export const ProfileEditor = ({ onUpdate }: ProfileEditorProps) => {
   // Update form data when profile loads
   useEffect(() => {
     if (profile) {
+      console.log('Profile loaded:', profile);
       setFormData({
         name: profile.name || "",
         bio: profile.bio || "",
@@ -138,7 +140,9 @@ export const ProfileEditor = ({ onUpdate }: ProfileEditorProps) => {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    console.log('Starting save operation...');
+    
     if (usernameStatus === 'taken' || usernameStatus === 'invalid') {
       toast({
         title: "Erro no nome de usuário",
@@ -148,27 +152,55 @@ export const ProfileEditor = ({ onUpdate }: ProfileEditorProps) => {
       return;
     }
 
-    // Create update object with only known properties
-    const updateData: any = {
-      name: formData.name,
-      bio: formData.bio,
-      avatar_url: formData.avatar_url,
-      username: formData.username,
-    };
+    try {
+      // Create update object with only the basic profile fields that exist in the database
+      const updateData = {
+        name: formData.name,
+        bio: formData.bio,
+        avatar_url: formData.avatar_url,
+        username: formData.username,
+      };
 
-    // Add social_links only if the profile supports it
-    updateData.social_links = socialLinks;
+      console.log('Saving profile data:', updateData);
+      
+      // Save to database
+      await new Promise((resolve, reject) => {
+        updateProfile(updateData, {
+          onSuccess: (data) => {
+            console.log('Profile saved successfully:', data);
+            resolve(data);
+          },
+          onError: (error) => {
+            console.error('Profile save error:', error);
+            reject(error);
+          }
+        });
+      });
 
-    updateProfile(updateData);
+      // Store social links in localStorage as a temporary solution
+      // since the database schema doesn't support it yet
+      if (profile?.id) {
+        localStorage.setItem(`social_links_${profile.id}`, JSON.stringify(socialLinks));
+        console.log('Social links saved to localStorage');
+      }
 
-    const successMessage = formData.username 
-      ? "Perfil salvo! Sua página pública está disponível em linkmax.bio/u/" + formData.username
-      : "Perfil salvo! Configure um nome de usuário para ativar sua página pública.";
+      const successMessage = formData.username 
+        ? "Perfil salvo! Sua página pública está disponível em linkmax.bio/u/" + formData.username
+        : "Perfil salvo! Configure um nome de usuário para ativar sua página pública.";
 
-    toast({
-      title: "Perfil salvo",
-      description: successMessage,
-    });
+      toast({
+        title: "Perfil salvo com sucesso!",
+        description: successMessage,
+      });
+
+    } catch (error) {
+      console.error('Save operation failed:', error);
+      toast({
+        title: "Erro ao salvar",
+        description: "Ocorreu um erro ao salvar o perfil. Tente novamente.",
+        variant: "destructive",
+      });
+    }
   };
 
   const displayName = formData.name || profile?.name || "Usuário";

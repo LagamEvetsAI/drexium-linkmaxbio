@@ -8,13 +8,33 @@ export const usePublicProfile = (identifier: string) => {
     queryFn: async () => {
       if (!identifier) return null;
       
+      console.log('Fetching public profile for identifier:', identifier);
+      
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .or(`username.eq.${identifier},slug.eq.${identifier}`)
         .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching public profile:', error);
+        throw error;
+      }
+      
+      console.log('Public profile data:', data);
+      
+      // Load social links from localStorage if available
+      if (data?.id) {
+        const socialLinksData = localStorage.getItem(`social_links_${data.id}`);
+        if (socialLinksData) {
+          try {
+            (data as any).social_links = JSON.parse(socialLinksData);
+          } catch (e) {
+            console.error('Error parsing social links:', e);
+          }
+        }
+      }
+      
       return data;
     },
     enabled: !!identifier,
@@ -25,6 +45,8 @@ export const usePublicProfile = (identifier: string) => {
     queryFn: async () => {
       if (!profile?.id) return [];
       
+      console.log('Fetching links for profile:', profile.id);
+      
       const { data, error } = await supabase
         .from('links')
         .select('*')
@@ -32,7 +54,12 @@ export const usePublicProfile = (identifier: string) => {
         .eq('active', true)
         .order('position', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching links:', error);
+        throw error;
+      }
+      
+      console.log('Links data:', data);
       return data;
     },
     enabled: !!profile?.id,

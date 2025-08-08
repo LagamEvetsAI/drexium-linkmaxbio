@@ -34,6 +34,8 @@ export const useProfile = () => {
     mutationFn: async (updates: ProfileUpdate) => {
       if (!user?.id) throw new Error('User not authenticated');
 
+      console.log('Updating profile with data:', updates);
+
       const { data, error } = await supabase
         .from('profiles')
         .update(updates)
@@ -41,11 +43,21 @@ export const useProfile = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Database error:', error);
+        throw error;
+      }
+      
+      console.log('Profile updated successfully:', data);
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('Profile mutation success, invalidating queries...');
       queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['public-profile'] });
+    },
+    onError: (error) => {
+      console.error('Profile mutation error:', error);
     },
   });
 
@@ -73,11 +85,19 @@ export const useProfile = () => {
     }
   };
 
+  // Create a wrapped updateProfile function that accepts callbacks
+  const updateProfile = (updates: ProfileUpdate, callbacks?: { onSuccess?: (data: any) => void, onError?: (error: any) => void }) => {
+    return updateProfileMutation.mutate(updates, {
+      onSuccess: callbacks?.onSuccess,
+      onError: callbacks?.onError,
+    });
+  };
+
   return {
     profile,
     isLoading,
     error,
-    updateProfile: updateProfileMutation.mutate,
+    updateProfile,
     isUpdating: updateProfileMutation.isPending,
     checkUsernameAvailability,
     checkFirstLogin,
