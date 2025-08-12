@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -8,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { useDomain } from '@/hooks/useDomain';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -21,6 +21,7 @@ const Auth = () => {
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { getProfileUrl } = useDomain();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -124,7 +125,7 @@ const Auth = () => {
                       required={!isLogin}
                     />
                     <p className="text-xs text-gray-500 mt-1">
-                      Será usado no seu link: linkmax.bio/u/{username || 'seuusername'}
+                      Será usado no seu link: {username ? getProfileUrl(username) : 'Seu domínio/u/seuusername'}
                     </p>
                   </div>
                 </>

@@ -9,7 +9,7 @@ export const tutorialSteps: TutorialStepData[] = [
     content: [
       "O LinkMax.bio permite que você crie uma página única com todos os seus links importantes",
       "Você pode personalizar seu perfil, adicionar links, escolher temas e acompanhar estatísticas",
-      "Sua página será acessível através de um link único: linkmax.bio/u/seuusername",
+      "Sua página será acessível através de um link único usando seu domínio personalizado",
       "Vamos começar configurando seu perfil!"
     ],
     tips: [
@@ -77,7 +77,7 @@ export const tutorialSteps: TutorialStepData[] = [
     description: "Como divulgar seu LinkMax.bio",
     category: "sharing",
     content: [
-      "Sua página estará disponível em: linkmax.bio/u/seuusername",
+      "Sua página estará disponível no seu domínio personalizado em /u/seuusername",
       "Copie esse link e compartilhe em suas redes sociais",
       "Use em sua bio do Instagram, Twitter, TikTok, etc.",
       "Adicione em cartões de visita e materiais de marketing",

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Upload, Instagram, Youtube, Twitter, Linkedin, Facebook, Check, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useProfile } from "@/hooks/useProfile";
+import { useDomain } from "@/hooks/useDomain";
 
 interface ProfileData {
   name: string;
@@ -24,6 +24,7 @@ interface ProfileEditorProps {
 export const ProfileEditor = ({ onUpdate }: ProfileEditorProps) => {
   const { toast } = useToast();
   const { profile, updateProfile, isUpdating, checkUsernameAvailability } = useProfile();
+  const { getProfileUrl } = useDomain();
   
   const [formData, setFormData] = useState({
     name: "",
@@ -134,7 +135,7 @@ export const ProfileEditor = ({ onUpdate }: ProfileEditorProps) => {
         return 'Mínimo 3 caracteres, apenas letras e números';
       default:
         if (formData.username) {
-          return `Seu link: linkmax.bio/u/${formData.username}`;
+          return `Seu link: ${getProfileUrl(formData.username)}`;
         }
         return 'Configure um nome de usuário para ativar sua página pública';
     }
@@ -153,7 +154,6 @@ export const ProfileEditor = ({ onUpdate }: ProfileEditorProps) => {
     }
 
     try {
-      // Create update object with only the basic profile fields that exist in the database
       const updateData = {
         name: formData.name,
         bio: formData.bio,
@@ -163,7 +163,6 @@ export const ProfileEditor = ({ onUpdate }: ProfileEditorProps) => {
 
       console.log('Saving profile data:', updateData);
       
-      // Save to database
       await new Promise((resolve, reject) => {
         updateProfile(updateData, {
           onSuccess: (data) => {
@@ -177,15 +176,13 @@ export const ProfileEditor = ({ onUpdate }: ProfileEditorProps) => {
         });
       });
 
-      // Store social links in localStorage as a temporary solution
-      // since the database schema doesn't support it yet
       if (profile?.id) {
         localStorage.setItem(`social_links_${profile.id}`, JSON.stringify(socialLinks));
         console.log('Social links saved to localStorage');
       }
 
       const successMessage = formData.username 
-        ? "Perfil salvo! Sua página pública está disponível em linkmax.bio/u/" + formData.username
+        ? `Perfil salvo! Sua página pública está disponível em ${getProfileUrl(formData.username)}`
         : "Perfil salvo! Configure um nome de usuário para ativar sua página pública.";
 
       toast({
