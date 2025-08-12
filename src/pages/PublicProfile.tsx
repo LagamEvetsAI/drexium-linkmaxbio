@@ -1,134 +1,139 @@
-
-import { useParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { useParams, Navigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, Mail } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ExternalLink, MapPin, Calendar, Instagram, Twitter, Youtube, Linkedin, Github, Facebook } from "lucide-react";
 import { usePublicProfile } from "@/hooks/usePublicProfile";
+import { useClickTracking } from "@/hooks/useClickTracking";
 
 const PublicProfile = () => {
-  const { slug } = useParams();
-  const { profile, links, isLoading, error } = usePublicProfile(slug || '');
+  const { identifier } = useParams<{ identifier: string }>();
+  const { profile, links, isLoading, error } = usePublicProfile(identifier || "");
+  const { trackClick } = useClickTracking();
 
   const handleLinkClick = (linkId: string, url: string) => {
-    // TODO: Registrar o clique para analytics
-    console.log(`Link clicked: ${linkId} - ${url}`);
-    window.open(url, '_blank');
+    if (profile?.id) {
+      trackClick(linkId, profile.id, 'bio_page');
+    }
+    
+    // Open link in new tab
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
-  const getThemeClasses = () => {
-    const profileTheme = (profile as any)?.theme; // Safely access theme property
-    switch (profileTheme) {
-      case 'neon':
-        return 'bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900';
-      case 'nature':
-        return 'bg-gradient-to-br from-green-900 via-teal-900 to-blue-900';
+  const getSocialIcon = (platform: string) => {
+    switch (platform) {
+      case 'instagram':
+        return <Instagram className="w-5 h-5" />;
+      case 'twitter':
+        return <Twitter className="w-5 h-5" />;
+      case 'youtube':
+        return <Youtube className="w-5 h-5" />;
+      case 'linkedin':
+        return <Linkedin className="w-5 h-5" />;
+      case 'github':
+        return <Github className="w-5 h-5" />;
+      case 'facebook':
+        return <Facebook className="w-5 h-5" />;
       default:
-        return 'bg-dark-bg';
+        return <ExternalLink className="w-5 h-5" />;
     }
   };
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-dark-bg flex items-center justify-center">
-        <div className="w-12 h-12 border-2 border-neon-blue border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-full max-w-md mx-auto p-6 space-y-6">
+          <div className="text-center space-y-4">
+            <Skeleton className="w-24 h-24 rounded-full mx-auto" />
+            <Skeleton className="h-6 w-48 mx-auto" />
+            <Skeleton className="h-4 w-32 mx-auto" />
+          </div>
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-14 w-full rounded-lg" />
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
 
   if (error || !profile) {
-    return (
-      <div className="min-h-screen bg-dark-bg flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-white mb-2">Página não encontrada</h1>
-          <p className="text-gray-400">Esta página não existe ou foi removida.</p>
-        </div>
-      </div>
-    );
+    return <Navigate to="/404" replace />;
   }
 
-  // Parse social links safely
-  const profileSocialLinks = (profile as any).social_links;
-  const socialLinks = Array.isArray(profileSocialLinks) 
-    ? profileSocialLinks.filter((link: any) => link.active && link.url)
-    : [];
-
   return (
-    <div className={`min-h-screen ${getThemeClasses()} py-8 px-4`}>
-      <div className="max-w-md mx-auto">
+    <div className="min-h-screen bg-dark-bg">
+      <div className="w-full max-w-md mx-auto p-6 space-y-6">
         {/* Profile Header */}
-        <div className="text-center mb-8 animate-fade-in">
-          <Avatar className="w-24 h-24 mx-auto mb-4 ring-2 ring-neon-blue/50">
-            <AvatarImage src={profile.avatar_url || ''} alt={profile.name || 'Avatar'} />
-            <AvatarFallback className="bg-gradient-to-br from-neon-blue to-neon-green text-black text-xl font-bold">
-              {(profile.name || 'U').split(' ').map(n => n[0]).join('')}
+        <div className="text-center space-y-4">
+          <Avatar className="w-24 h-24 mx-auto border-2 border-neon-blue">
+            <AvatarImage src={profile.avatar_url || ""} alt={profile.name || ""} />
+            <AvatarFallback className="bg-dark-surface text-white text-xl">
+              {(profile.name || profile.username || "U").charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           
-          <h1 className="text-2xl font-bold mb-2 text-white">
-            {profile.name || 'Usuário'}
-          </h1>
-          
-          {profile.bio && (
-            <p className="text-gray-400 mb-4">
-              {profile.bio}
-            </p>
-          )}
-
-          <Badge className="bg-gradient-to-r from-neon-blue to-neon-green text-black mb-4">
-            FREE
-          </Badge>
-        </div>
-
-        {/* Links */}
-        <div className="space-y-4 mb-8">
-          {links.length === 0 ? (
-            <Card className="bg-dark-surface/50 border-gray-700">
-              <CardContent className="p-6 text-center">
-                <p className="text-gray-400 text-sm">Nenhum link disponível</p>
-              </CardContent>
-            </Card>
-          ) : (
-            links.map((link, index) => (
-              <Card 
-                key={link.id}
-                className="link-item animate-fade-in cursor-pointer hover:border-neon-blue/50 transition-all"
-                style={{ animationDelay: `${index * 0.1}s` }}
-                onClick={() => handleLinkClick(link.id, link.url)}
-              >
-                <CardContent className="p-4 flex items-center justify-between">
-                  <span className="font-medium text-white">{link.title}</span>
-                  <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-neon-blue transition-colors" />
-                </CardContent>
-              </Card>
-            ))
-          )}
+          <div>
+            <h1 className="text-2xl font-bold text-white">{profile.name}</h1>
+            {profile.username && (
+              <p className="text-gray-400">@{profile.username}</p>
+            )}
+            {profile.bio && (
+              <p className="text-gray-300 mt-2 max-w-sm mx-auto">{profile.bio}</p>
+            )}
+          </div>
         </div>
 
         {/* Social Links */}
-        {socialLinks.length > 0 && (
-          <div className="flex justify-center space-x-4 mb-8">
-            {socialLinks.map((social: any, index: number) => (
-              <Button
-                key={social.platform}
-                variant="ghost"
-                size="sm"
-                className="w-12 h-12 rounded-full border border-gray-700 hover:border-neon-blue/50 hover:bg-neon-blue/10 transition-all animate-fade-in"
-                style={{ animationDelay: `${(links.length + index) * 0.1}s` }}
-                onClick={() => window.open(social.url, '_blank')}
-              >
-                <span className="text-xs font-medium">
-                  {social.platform.charAt(0).toUpperCase()}
-                </span>
-              </Button>
-            ))}
+        {(profile as any).social_links && (
+          <div className="flex justify-center space-x-4">
+            {Object.entries((profile as any).social_links)
+              .filter(([_, url]) => url)
+              .map(([platform, url]) => (
+                <button
+                  key={platform}
+                  onClick={() => window.open(url as string, '_blank')}
+                  className="w-10 h-10 bg-dark-surface hover:bg-gray-700 rounded-full flex items-center justify-center transition-colors"
+                >
+                  {getSocialIcon(platform)}
+                </button>
+              ))}
+          </div>
+        )}
+
+        {/* Links */}
+        <div className="space-y-3">
+          {links.map((link) => (
+            <Card 
+              key={link.id} 
+              className="bg-dark-surface border-gray-700 hover:bg-gray-800 transition-all duration-200 cursor-pointer group"
+              onClick={() => handleLinkClick(link.id, link.url)}
+            >
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <h3 className="font-medium text-white group-hover:text-neon-blue transition-colors">
+                      {link.title}
+                    </h3>
+                  </div>
+                  <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-neon-blue transition-colors" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {links.length === 0 && (
+          <div className="text-center py-8">
+            <p className="text-gray-400">Nenhum link disponível</p>
           </div>
         )}
 
         {/* Footer */}
-        <div className="text-center mt-8 text-gray-500 text-sm">
-          <p>Criado com ❤️ no LinkMax.bio</p>
+        <div className="text-center text-xs text-gray-500 pt-6">
+          <p>Desenvolvido por Drexium Tech</p>
         </div>
       </div>
     </div>
