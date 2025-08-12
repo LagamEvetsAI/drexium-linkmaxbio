@@ -1,3 +1,4 @@
+
 import { useAuth } from "@/contexts/AuthContext";
 import { NavigationHeader } from "@/components/landing/NavigationHeader";
 import { FloatingButtons } from "@/components/landing/FloatingButtons";
@@ -5,9 +6,6 @@ import { HeroSection } from "@/components/landing/HeroSection";
 import { DifferentialsSection } from "@/components/landing/DifferentialsSection";
 import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
 import { PlansSection } from "@/components/landing/PlansSection";
-import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
-import { ExamplesSection } from "@/components/landing/ExamplesSection";
-import { VideoSection } from "@/components/landing/VideoSection";
 import { GuaranteeSection } from "@/components/landing/GuaranteeSection";
 import { FAQSection } from "@/components/landing/FAQSection";
 import { Footer } from "@/components/landing/Footer";
@@ -33,9 +31,6 @@ const Index = () => {
         <DifferentialsSection />
         <HowItWorksSection />
         <PlansSection />
-        <TestimonialsSection />
-        <ExamplesSection />
-        <VideoSection />
         <GuaranteeSection />
         <FAQSection />
       </main>

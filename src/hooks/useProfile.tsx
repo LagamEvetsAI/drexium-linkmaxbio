@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -74,14 +75,17 @@ export const useProfile = () => {
   };
 
   const checkFirstLogin = () => {
-    const hasSeenTutorial = localStorage.getItem(`tutorial-seen-${user?.id}`);
-    const skipTutorial = localStorage.getItem(`skip-tutorial-${user?.id}`);
+    if (!user?.id) return false;
+    const hasSeenTutorial = localStorage.getItem(`tutorial-seen-${user.id}`);
+    const skipTutorial = localStorage.getItem(`skip-tutorial-${user.id}`);
+    console.log('Tutorial check:', { hasSeenTutorial, skipTutorial, userId: user.id });
     return !hasSeenTutorial && !skipTutorial;
   };
 
   const markTutorialSeen = () => {
     if (user?.id) {
       localStorage.setItem(`tutorial-seen-${user.id}`, 'true');
+      console.log('Tutorial marked as seen for user:', user.id);
     }
   };
 
@@ -89,6 +93,7 @@ export const useProfile = () => {
     if (user?.id) {
       localStorage.setItem(`skip-tutorial-${user.id}`, 'true');
       localStorage.setItem(`tutorial-seen-${user.id}`, 'true');
+      console.log('Tutorial skipped permanently for user:', user.id);
     }
   };
 

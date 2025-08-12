@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -205,7 +204,7 @@ const DemoProfile = () => {
 
           {/* Preview da Página */}
           <div className="lg:sticky lg:top-24">
-            <div className="bg-gray-800 rounded-3xl p-4 shadow-2xl">
+            <div className="bg-gray-800 rounded-3xl p-4 shadow-2xl mx-auto max-w-sm">
               <div className="bg-gray-900 rounded-2xl p-2 mb-3 flex justify-center">
                 <div className="w-16 h-1 bg-gray-600 rounded-full"></div>
               </div>
@@ -224,7 +223,7 @@ const DemoProfile = () => {
                     {profile.name}
                   </h2>
                   
-                  <p className="text-sm text-gray-200 mb-4">
+                  <p className="text-sm text-gray-200 mb-4 px-2 leading-relaxed">
                     {profile.bio}
                   </p>
 
@@ -243,10 +242,10 @@ const DemoProfile = () => {
                       onClick={() => handleLinkClick(link.id, link.url)}
                     >
                       <CardContent className="p-4 flex items-center justify-between">
-                        <span className="text-white text-sm font-medium group-hover:text-neon-blue transition-colors">
+                        <span className="text-white text-sm font-medium group-hover:text-neon-blue transition-colors truncate flex-1 mr-2">
                           {link.title}
                         </span>
-                        <ExternalLink className="w-4 h-4 text-gray-300 group-hover:text-neon-blue transition-colors" />
+                        <ExternalLink className="w-4 h-4 text-gray-300 group-hover:text-neon-blue transition-colors flex-shrink-0" />
                       </CardContent>
                     </Card>
                   ))}

@@ -38,24 +38,20 @@ export const PreviewPane = ({ data }: PreviewPaneProps) => {
     }
   };
 
-  const getLinkAnimation = (index: number) => ({
-    animationDelay: `${index * 0.1}s`
-  });
-
   return (
-    <div className="h-full p-4 bg-dark-elevated">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-white">Preview em Tempo Real</h3>
+    <div className="h-full p-6 bg-dark-elevated">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-lg font-semibold text-white">Preview em Tempo Real</h3>
         <div className="flex items-center space-x-2">
           <button
             onClick={() => setViewMode('mobile')}
-            className={`p-2 rounded ${viewMode === 'mobile' ? 'bg-neon-blue/20 text-neon-blue' : 'text-gray-400 hover:text-white'}`}
+            className={`p-2 rounded-lg transition-colors ${viewMode === 'mobile' ? 'bg-neon-blue/20 text-neon-blue' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
           >
             <Smartphone className="w-4 h-4" />
           </button>
           <button
             onClick={() => setViewMode('desktop')}
-            className={`p-2 rounded ${viewMode === 'desktop' ? 'bg-neon-blue/20 text-neon-blue' : 'text-gray-400 hover:text-white'}`}
+            className={`p-2 rounded-lg transition-colors ${viewMode === 'desktop' ? 'bg-neon-blue/20 text-neon-blue' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}
           >
             <Monitor className="w-4 h-4" />
           </button>
@@ -66,7 +62,7 @@ export const PreviewPane = ({ data }: PreviewPaneProps) => {
       <div className={`mx-auto ${viewMode === 'mobile' ? 'max-w-sm' : 'max-w-lg'}`}>
         {viewMode === 'mobile' ? (
           // Mobile Frame
-          <div className="bg-gray-800 rounded-3xl p-3 shadow-2xl">
+          <div className="bg-gray-800 rounded-3xl p-3 shadow-2xl mx-auto">
             <div className="bg-gray-900 rounded-2xl p-1 mb-2">
               <div className="w-16 h-1 bg-gray-600 rounded-full mx-auto"></div>
             </div>
@@ -76,7 +72,7 @@ export const PreviewPane = ({ data }: PreviewPaneProps) => {
           </div>
         ) : (
           // Desktop Frame
-          <div className="bg-gray-800 rounded-lg p-4 shadow-2xl">
+          <div className="bg-gray-800 rounded-lg p-4 shadow-2xl mx-auto">
             <div className="flex items-center space-x-2 mb-4">
               <div className="flex space-x-1">
                 <div className="w-3 h-3 bg-red-500 rounded-full"></div>
@@ -95,7 +91,7 @@ export const PreviewPane = ({ data }: PreviewPaneProps) => {
       </div>
 
       {/* Preview Info */}
-      <div className="mt-4 text-center">
+      <div className="mt-6 text-center">
         <p className="text-xs text-gray-500">
           Atualizações em tempo real • {data.links.filter(l => l.active).length} links ativos
         </p>
@@ -106,9 +102,9 @@ export const PreviewPane = ({ data }: PreviewPaneProps) => {
 
 const PreviewContent = ({ data }: { data: PreviewData }) => {
   return (
-    <>
+    <div className="flex flex-col items-center w-full max-w-md mx-auto">
       {/* Profile Section */}
-      <div className="text-center mb-8 animate-fade-in">
+      <div className="text-center mb-8 animate-fade-in w-full">
         <Avatar className="w-20 h-20 mx-auto mb-4 ring-2 ring-neon-blue/50">
           <AvatarImage src={data.profile.avatar} alt={data.profile.name} />
           <AvatarFallback className="bg-gradient-to-br from-neon-blue to-neon-green text-black text-lg font-bold">
@@ -120,7 +116,7 @@ const PreviewContent = ({ data }: { data: PreviewData }) => {
           {data.profile.name || "Seu Nome"}
         </h2>
         
-        <p className="text-sm text-gray-400 mb-4">
+        <p className="text-sm text-gray-400 mb-4 px-4">
           {data.profile.bio || "Sua biografia aqui"}
         </p>
 
@@ -130,7 +126,7 @@ const PreviewContent = ({ data }: { data: PreviewData }) => {
       </div>
 
       {/* Links */}
-      <div className="space-y-3 mb-8">
+      <div className="space-y-3 mb-8 w-full">
         {data.links.filter(link => link.active).length === 0 ? (
           <Card className="bg-dark-surface/50 border-gray-700 animate-pulse">
             <CardContent className="p-6 text-center">
@@ -145,14 +141,14 @@ const PreviewContent = ({ data }: { data: PreviewData }) => {
             .map((link, index) => (
               <Card 
                 key={link.id}
-                className="bg-dark-surface/70 border-gray-700 hover:border-neon-blue/50 transition-all cursor-pointer group animate-fade-in"
+                className="bg-dark-surface/70 border-gray-700 hover:border-neon-blue/50 transition-all cursor-pointer group animate-fade-in w-full"
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <CardContent className="p-4 flex items-center justify-between">
-                  <span className="text-white text-sm font-medium group-hover:text-neon-blue transition-colors">
+                  <span className="text-white text-sm font-medium group-hover:text-neon-blue transition-colors truncate flex-1 mr-2">
                     {link.title}
                   </span>
-                  <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-neon-blue transition-colors" />
+                  <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-neon-blue transition-colors flex-shrink-0" />
                 </CardContent>
               </Card>
             ))
@@ -160,11 +156,11 @@ const PreviewContent = ({ data }: { data: PreviewData }) => {
       </div>
 
       {/* Footer */}
-      <div className="text-center pt-4 border-t border-gray-700">
+      <div className="text-center pt-4 border-t border-gray-700 w-full">
         <p className="text-xs text-gray-500">
           Criado com ❤️ no LinkMax.bio
         </p>
       </div>
-    </>
+    </div>
   );
 };

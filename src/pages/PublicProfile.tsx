@@ -1,3 +1,4 @@
+
 import { useParams, Navigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -42,7 +43,7 @@ const PublicProfile = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-dark-bg flex items-center justify-center">
+      <div className="min-h-screen bg-dark-bg flex items-center justify-center px-4">
         <div className="w-full max-w-md mx-auto p-6 space-y-6">
           <div className="text-center space-y-4">
             <Skeleton className="w-24 h-24 rounded-full mx-auto" />
@@ -64,8 +65,8 @@ const PublicProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-dark-bg">
-      <div className="w-full max-w-md mx-auto p-6 space-y-6">
+    <div className="min-h-screen bg-dark-bg px-4 py-6">
+      <div className="w-full max-w-md mx-auto space-y-6">
         {/* Profile Header */}
         <div className="text-center space-y-4">
           <Avatar className="w-24 h-24 mx-auto border-2 border-neon-blue">
@@ -75,13 +76,13 @@ const PublicProfile = () => {
             </AvatarFallback>
           </Avatar>
           
-          <div>
+          <div className="space-y-2">
             <h1 className="text-2xl font-bold text-white">{profile.name}</h1>
             {profile.username && (
               <p className="text-gray-400">@{profile.username}</p>
             )}
             {profile.bio && (
-              <p className="text-gray-300 mt-2 max-w-sm mx-auto">{profile.bio}</p>
+              <p className="text-gray-300 mt-2 max-w-sm mx-auto leading-relaxed">{profile.bio}</p>
             )}
           </div>
         </div>
@@ -108,17 +109,17 @@ const PublicProfile = () => {
           {links.map((link) => (
             <Card 
               key={link.id} 
-              className="bg-dark-surface border-gray-700 hover:bg-gray-800 transition-all duration-200 cursor-pointer group"
+              className="bg-dark-surface border-gray-700 hover:bg-gray-800 hover:border-neon-blue/50 transition-all duration-200 cursor-pointer group"
               onClick={() => handleLinkClick(link.id, link.url)}
             >
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <h3 className="font-medium text-white group-hover:text-neon-blue transition-colors">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-white group-hover:text-neon-blue transition-colors truncate">
                       {link.title}
                     </h3>
                   </div>
-                  <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-neon-blue transition-colors" />
+                  <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-neon-blue transition-colors flex-shrink-0 ml-2" />
                 </div>
               </CardContent>
             </Card>
