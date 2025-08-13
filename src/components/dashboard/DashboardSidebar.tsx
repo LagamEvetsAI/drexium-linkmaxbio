@@ -15,6 +15,7 @@ import { Link } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { DashboardView } from "@/pages/Dashboard";
 import { Tables } from "@/integrations/supabase/types";
+import { useDomain } from "@/hooks/useDomain";
 
 type Profile = Tables<'profiles'>;
 
@@ -26,6 +27,8 @@ interface DashboardSidebarProps {
 }
 
 export const DashboardSidebar = ({ activeView, onViewChange, onTutorialOpen, profile }: DashboardSidebarProps) => {
+  const { getProfileUrl } = useDomain();
+  
   const menuItems = [
     { id: 'links' as DashboardView, label: 'Links', icon: LinkIcon },
     { id: 'profile' as DashboardView, label: 'Perfil', icon: User },
@@ -38,19 +41,27 @@ export const DashboardSidebar = ({ activeView, onViewChange, onTutorialOpen, pro
   const displayUsername = profile?.username || "username";
   const displayAvatar = profile?.avatar_url || "";
 
-  // Determine the public URL - prioritize username over slug
-  const getPublicUrl = () => {
+  // Determine the identifier for the public URL - prioritize username over slug
+  const getPublicIdentifier = () => {
     if (profile?.username) {
-      return `/u/${profile.username}`;
+      return profile.username;
     }
     if (profile?.slug) {
-      return `/u/${profile.slug}`;
+      return profile.slug;
     }
     return null;
   };
 
-  const publicUrl = getPublicUrl();
-  const canViewPublicPage = publicUrl !== null;
+  const publicIdentifier = getPublicIdentifier();
+  const canViewPublicPage = publicIdentifier !== null;
+  
+  const handleViewPublicPage = () => {
+    if (publicIdentifier) {
+      const fullUrl = getProfileUrl(publicIdentifier);
+      console.log('Opening public profile URL:', fullUrl);
+      window.open(fullUrl, '_blank', 'noopener,noreferrer');
+    }
+  };
 
   return (
     <div className="w-64 bg-dark-surface border-r border-gray-800 p-6">
@@ -77,12 +88,15 @@ export const DashboardSidebar = ({ activeView, onViewChange, onTutorialOpen, pro
           </div>
         </div>
         {canViewPublicPage ? (
-          <Link to={publicUrl}>
-            <Button variant="outline" size="sm" className="w-full text-xs">
-              <ExternalLink className="w-3 h-3 mr-1" />
-              Ver Página Pública
-            </Button>
-          </Link>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full text-xs"
+            onClick={handleViewPublicPage}
+          >
+            <ExternalLink className="w-3 h-3 mr-1" />
+            Ver Página Pública
+          </Button>
         ) : (
           <Button 
             variant="outline" 

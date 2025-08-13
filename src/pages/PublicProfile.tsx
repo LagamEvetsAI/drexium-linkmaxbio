@@ -7,11 +7,23 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ExternalLink, MapPin, Calendar, Instagram, Twitter, Youtube, Linkedin, Github, Facebook } from "lucide-react";
 import { usePublicProfile } from "@/hooks/usePublicProfile";
 import { useClickTracking } from "@/hooks/useClickTracking";
+import { useEffect } from "react";
 
 const PublicProfile = () => {
   const { identifier } = useParams<{ identifier: string }>();
   const { profile, links, isLoading, error } = usePublicProfile(identifier || "");
   const { trackClick } = useClickTracking();
+
+  // Debug logging
+  useEffect(() => {
+    console.log('PublicProfile component mounted with:', {
+      identifier,
+      currentUrl: window.location.href,
+      profile,
+      isLoading,
+      error
+    });
+  }, [identifier, profile, isLoading, error]);
 
   const handleLinkClick = (linkId: string, url: string) => {
     if (profile?.id) {
@@ -60,7 +72,14 @@ const PublicProfile = () => {
     );
   }
 
+  // More detailed error logging
   if (error || !profile) {
+    console.error('PublicProfile error or no profile found:', {
+      identifier,
+      error,
+      profile,
+      currentUrl: window.location.href
+    });
     return <Navigate to="/404" replace />;
   }
 
