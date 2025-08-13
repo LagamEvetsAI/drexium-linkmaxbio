@@ -10,18 +10,35 @@ export const usePublicProfile = (identifier: string) => {
       
       console.log('Fetching public profile for identifier:', identifier);
       
-      const { data, error } = await supabase
+      // First try to find by username
+      let { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .or(`username.eq.${identifier},slug.eq.${identifier}`)
+        .eq('username', identifier)
         .maybeSingle();
 
       if (error) {
-        console.error('Error fetching public profile:', error);
-        throw error;
+        console.error('Error fetching profile by username:', error);
+      }
+
+      // If not found by username, try by slug
+      if (!data && !error) {
+        console.log('Profile not found by username, trying slug...');
+        const slugResult = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('slug', identifier)
+          .maybeSingle();
+
+        if (slugResult.error) {
+          console.error('Error fetching profile by slug:', slugResult.error);
+          throw slugResult.error;
+        }
+
+        data = slugResult.data;
       }
       
-      console.log('Public profile data:', data);
+      console.log('Public profile data found:', data);
       
       // Load social links from localStorage if available
       if (data?.id) {

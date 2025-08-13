@@ -43,10 +43,12 @@ export const DashboardSidebar = ({ activeView, onViewChange, onTutorialOpen, pro
 
   // Determine the identifier for the public URL - prioritize username over slug
   const getPublicIdentifier = () => {
-    if (profile?.username) {
+    // Always prefer username if available, as it's user-friendly
+    if (profile?.username && profile.username.trim() !== '') {
       return profile.username;
     }
-    if (profile?.slug) {
+    // Fallback to slug if username is not set
+    if (profile?.slug && profile.slug.trim() !== '') {
       return profile.slug;
     }
     return null;
@@ -58,7 +60,15 @@ export const DashboardSidebar = ({ activeView, onViewChange, onTutorialOpen, pro
   const handleViewPublicPage = () => {
     if (publicIdentifier) {
       const fullUrl = getProfileUrl(publicIdentifier);
-      console.log('Opening public profile URL:', fullUrl);
+      console.log('Opening public profile:', {
+        identifier: publicIdentifier,
+        fullUrl,
+        profile: {
+          username: profile?.username,
+          slug: profile?.slug,
+          name: profile?.name
+        }
+      });
       window.open(fullUrl, '_blank', 'noopener,noreferrer');
     }
   };
