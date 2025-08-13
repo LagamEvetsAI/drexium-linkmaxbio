@@ -1,45 +1,38 @@
-
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { 
-  Link as LinkIcon, 
-  User, 
-  Palette, 
-  BarChart3, 
-  Crown, 
-  ExternalLink,
-  Zap,
-  HelpCircle
-} from "lucide-react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import type { DashboardView } from "@/pages/Dashboard";
-import { Tables } from "@/integrations/supabase/types";
+import { Button } from "@/components/ui/button";
+import {
+  ArrowRight,
+  BarChart3,
+  Code,
+  LayoutDashboard,
+  Link,
+  LogOut,
+  Settings,
+  User,
+  Eye,
+} from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "@/hooks/useProfile";
 import { useDomain } from "@/hooks/useDomain";
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { Skeleton } from "@/components/ui/skeleton";
 
-type Profile = Tables<'profiles'>;
-
-interface DashboardSidebarProps {
-  activeView: DashboardView;
-  onViewChange: (view: DashboardView) => void;
-  onTutorialOpen: () => void;
-  profile: Profile | null | undefined;
-}
-
-export const DashboardSidebar = ({ activeView, onViewChange, onTutorialOpen, profile }: DashboardSidebarProps) => {
+export function DashboardSidebar() {
+  const { signOut } = useAuth();
+  const { profile, isLoading } = useProfile();
   const { getProfileUrl } = useDomain();
-  
-  const menuItems = [
-    { id: 'links' as DashboardView, label: 'Links', icon: LinkIcon },
-    { id: 'profile' as DashboardView, label: 'Perfil', icon: User },
-    { id: 'themes' as DashboardView, label: 'Temas', icon: Palette },
-    { id: 'analytics' as DashboardView, label: 'Analytics', icon: BarChart3, badge: 'PRO' },
-    { id: 'plan' as DashboardView, label: 'Planos', icon: Crown },
-  ];
+  const navigate = useNavigate();
 
-  const displayName = profile?.name || "Usuário";
-  const displayUsername = profile?.username || "username";
-  const displayAvatar = profile?.avatar_url || "";
+  const [open, setOpen] = useState(false);
 
   // Determine the identifier for the public URL - prioritize username over slug
   const getPublicIdentifier = () => {
@@ -55,120 +48,101 @@ export const DashboardSidebar = ({ activeView, onViewChange, onTutorialOpen, pro
   };
 
   const publicIdentifier = getPublicIdentifier();
-  const canViewPublicPage = publicIdentifier !== null;
-  
+
   const handleViewPublicPage = () => {
     if (publicIdentifier) {
       const fullUrl = getProfileUrl(publicIdentifier);
-      console.log('Opening public profile:', {
-        identifier: publicIdentifier,
-        fullUrl,
-        profile: {
-          username: profile?.username,
-          slug: profile?.slug,
-          name: profile?.name
-        }
-      });
       window.open(fullUrl, '_blank', 'noopener,noreferrer');
     }
   };
 
-  return (
-    <div className="w-64 bg-dark-surface border-r border-gray-800 p-6">
-      {/* Logo */}
-      <div className="flex items-center space-x-2 mb-8">
-        <div className="w-8 h-8 bg-gradient-to-br from-neon-blue to-neon-green rounded-lg flex items-center justify-center">
-          <Zap className="w-5 h-5 text-white" />
-        </div>
-        <span className="text-xl font-bold neon-text">LinkMax.bio</span>
-      </div>
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/auth');
+  };
 
-      {/* User Info */}
-      <div className="mb-8 p-4 bg-dark-bg rounded-lg border border-gray-700">
-        <div className="flex items-center space-x-3 mb-3">
-          <Avatar className="w-10 h-10">
-            <AvatarImage src={displayAvatar} alt={displayName} />
-            <AvatarFallback className="bg-gradient-to-br from-neon-blue to-neon-green text-black font-bold">
-              {displayName.split(' ').map(n => n[0]).join('').toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <p className="font-medium text-white truncate">{displayName}</p>
-            <p className="text-xs text-gray-400">Plano Free</p>
+  const displayName = profile?.name || "Usuário";
+  const displayAvatar = profile?.avatar_url || "";
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button variant="ghost" size="sm" className="md:hidden">
+          <LayoutDashboard className="mr-2 h-4 w-4" />
+          Menu
+        </Button>
+      </SheetTrigger>
+      <SheetContent className="w-full sm:w-64 bg-dark-bg border-r border-gray-700 text-white">
+        <SheetHeader className="text-left mt-4">
+          <SheetTitle>Dashboard</SheetTitle>
+          <SheetDescription>
+            Gerencie seu perfil e links de forma fácil.
+          </SheetDescription>
+        </SheetHeader>
+        <div className="py-4">
+          <div className="flex items-center justify-center space-x-2">
+            {isLoading ? (
+              <Skeleton className="h-12 w-12 rounded-full" />
+            ) : (
+              <Avatar className="w-12 h-12">
+                <AvatarImage src={displayAvatar} alt={displayName} />
+                <AvatarFallback className="bg-gradient-to-br from-neon-blue to-neon-green text-black text-xl font-bold">
+                  {displayName.split(' ').map(n => n[0]).join('').toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            )}
+            <div>
+              <h2 className="font-semibold">{isLoading ? <Skeleton className="h-6 w-24" /> : displayName}</h2>
+              <p className="text-sm text-gray-400">{isLoading ? <Skeleton className="h-4 w-32" /> : profile?.username ? `@${profile.username}` : 'Configure seu nome'}</p>
+            </div>
           </div>
         </div>
-        {canViewPublicPage ? (
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="w-full text-xs"
-            onClick={handleViewPublicPage}
-          >
-            <ExternalLink className="w-3 h-3 mr-1" />
-            Ver Página Pública
+        <div className="grid gap-4 py-4">
+          <Button variant="ghost" className="justify-start" asChild>
+            <RouterLink to="/dashboard">
+              <LayoutDashboard className="mr-2 h-4 w-4" />
+              Visão Geral
+            </RouterLink>
           </Button>
-        ) : (
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="w-full text-xs opacity-50 cursor-not-allowed" 
-            disabled
-            title="Configure seu nome de usuário no perfil para ativar sua página pública"
-          >
-            <ExternalLink className="w-3 h-3 mr-1" />
-            Configure Perfil
+          <Button variant="ghost" className="justify-start" asChild>
+            <RouterLink to="/dashboard">
+              <User className="mr-2 h-4 w-4" />
+              Perfil
+            </RouterLink>
           </Button>
-        )}
-      </div>
-
-      {/* Navigation */}
-      <nav className="space-y-2 mb-8">
-        {menuItems.map((item) => (
-          <Button
-            key={item.id}
-            variant={activeView === item.id ? "default" : "ghost"}
-            size="sm"
-            className={`w-full justify-start ${
-              activeView === item.id 
-                ? 'bg-neon-blue/20 text-neon-blue border-neon-blue/50' 
-                : 'text-gray-400 hover:text-white hover:bg-gray-800'
-            }`}
-            onClick={() => onViewChange(item.id)}
-          >
-            <item.icon className="w-4 h-4 mr-3" />
-            {item.label}
-            {item.badge && (
-              <Badge variant="secondary" className="ml-auto text-xs bg-neon-green/20 text-neon-green">
-                {item.badge}
-              </Badge>
-            )}
+          <Button variant="ghost" className="justify-start" asChild>
+            <RouterLink to="/dashboard">
+              <Link className="mr-2 h-4 w-4" />
+              Links
+            </RouterLink>
           </Button>
-        ))}
-      </nav>
-
-      {/* Tutorial Button */}
-      <div className="mb-8">
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full justify-start border-gray-700 text-gray-300 hover:text-white hover:bg-gray-800"
-          onClick={onTutorialOpen}
-        >
-          <HelpCircle className="w-4 h-4 mr-3" />
-          Tutorial
+          <Button variant="ghost" className="justify-start" asChild>
+            <RouterLink to="/dashboard">
+              <BarChart3 className="mr-2 h-4 w-4" />
+              Analytics
+            </RouterLink>
+          </Button>
+        </div>
+        <div className="border-t border-gray-700" />
+        <div className="grid gap-4 py-4">
+          {publicIdentifier && (
+            <Button variant="ghost" className="justify-start" onClick={handleViewPublicPage}>
+              <Eye className="mr-2 h-4 w-4" />
+              Ver Página Pública
+              <ArrowRight className="ml-auto h-4 w-4" />
+            </Button>
+          )}
+          <Button variant="ghost" className="justify-start">
+            <Settings className="mr-2 h-4 w-4" />
+            Configurações
+          </Button>
+        </div>
+        <div className="border-t border-gray-700" />
+        <Button variant="ghost" className="justify-start mt-4" onClick={handleSignOut}>
+          <LogOut className="mr-2 h-4 w-4" />
+          Sair
         </Button>
-      </div>
-
-      {/* Upgrade CTA */}
-      <div className="p-4 bg-gradient-to-br from-neon-blue/10 to-neon-green/10 rounded-lg border border-neon-blue/20">
-        <h4 className="font-semibold text-white mb-2">Upgrade para Pro</h4>
-        <p className="text-xs text-gray-400 mb-3">
-          Desbloqueie recursos avançados e remova limitações.
-        </p>
-        <Button size="sm" className="w-full btn-neon">
-          Fazer Upgrade
-        </Button>
-      </div>
-    </div>
+      </SheetContent>
+    </Sheet>
   );
-};
+}

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,7 @@ import { Upload, Instagram, Youtube, Twitter, Linkedin, Facebook, Check, X } fro
 import { useToast } from "@/hooks/use-toast";
 import { useProfile } from "@/hooks/useProfile";
 import { useDomain } from "@/hooks/useDomain";
+import { useSocialLinks } from "@/hooks/useSocialLinks";
 
 interface ProfileData {
   name: string;
@@ -21,9 +23,18 @@ interface ProfileEditorProps {
   onUpdate: (profile: ProfileData) => void;
 }
 
+const SOCIAL_PLATFORMS = [
+  { platform: "Instagram", icon: Instagram, color: "text-pink-400" },
+  { platform: "YouTube", icon: Youtube, color: "text-red-400" },
+  { platform: "Twitter", icon: Twitter, color: "text-blue-400" },
+  { platform: "LinkedIn", icon: Linkedin, color: "text-blue-600" },
+  { platform: "Facebook", icon: Facebook, color: "text-blue-500" },
+];
+
 export const ProfileEditor = ({ onUpdate }: ProfileEditorProps) => {
   const { toast } = useToast();
   const { profile, updateProfile, isUpdating, checkUsernameAvailability } = useProfile();
+  const { socialLinks, upsertSocialLink, isUpdating: isUpdatingSocial } = useSocialLinks();
   const { getProfileUrl } = useDomain();
   
   const [formData, setFormData] = useState({
@@ -35,35 +46,40 @@ export const ProfileEditor = ({ onUpdate }: ProfileEditorProps) => {
 
   const [usernameStatus, setUsernameStatus] = useState<'checking' | 'available' | 'taken' | 'invalid' | null>(null);
 
-  const [socialLinks, setSocialLinks] = useState([
-    { platform: "Instagram", icon: Instagram, url: "", active: true, color: "text-pink-400" },
-    { platform: "YouTube", icon: Youtube, url: "", active: true, color: "text-red-400" },
-    { platform: "Twitter", icon: Twitter, url: "", active: false, color: "text-blue-400" },
-    { platform: "LinkedIn", icon: Linkedin, url: "", active: false, color: "text-blue-600" },
-    { platform: "Facebook", icon: Facebook, url: "", active: false, color: "text-blue-500" },
-  ]);
+  // Initialize social links state with platform definitions
+  const [socialLinksState, setSocialLinksState] = useState(
+    SOCIAL_PLATFORMS.map(platform => ({
+      ...platform,
+      url: "",
+      active: false,
+    }))
+  );
 
   // Update form data when profile loads
   useEffect(() => {
     if (profile) {
-      console.log('Profile loaded:', profile);
       setFormData({
         name: profile.name || "",
         bio: profile.bio || "",
         avatar_url: profile.avatar_url || "",
         username: profile.username || ""
       });
-
-      // Load social links from profile - safely handle missing property
-      const profileSocialLinks = (profile as any).social_links;
-      if (profileSocialLinks && Array.isArray(profileSocialLinks)) {
-        setSocialLinks(prev => prev.map(link => {
-          const saved = profileSocialLinks.find((s: any) => s.platform === link.platform);
-          return saved ? { ...link, ...saved } : link;
-        }));
-      }
     }
   }, [profile]);
+
+  // Update social links state when data loads from database
+  useEffect(() => {
+    if (socialLinks) {
+      setSocialLinksState(prev => prev.map(link => {
+        const saved = socialLinks.find(s => s.platform === link.platform);
+        return saved ? { 
+          ...link, 
+          url: saved.url,
+          active: saved.active 
+        } : link;
+      }));
+    }
+  }, [socialLinks]);
 
   // Update parent component when form data changes
   useEffect(() => {
@@ -97,23 +113,24 @@ export const ProfileEditor = ({ onUpdate }: ProfileEditorProps) => {
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {
     if (field === 'username') {
+      // Sanitize username: only alphanumeric characters
       value = value.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
     }
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleSocialToggle = (index: number) => {
-    const updated = socialLinks.map((link, i) => 
+    const updated = socialLinksState.map((link, i) => 
       i === index ? { ...link, active: !link.active } : link
     );
-    setSocialLinks(updated);
+    setSocialLinksState(updated);
   };
 
   const handleSocialUrlChange = (index: number, url: string) => {
-    const updated = socialLinks.map((link, i) => 
+    const updated = socialLinksState.map((link, i) => 
       i === index ? { ...link, url } : link
     );
-    setSocialLinks(updated);
+    setSocialLinksState(updated);
   };
 
   const handleAvatarUpload = () => {
@@ -141,9 +158,22 @@ export const ProfileEditor = ({ onUpdate }: ProfileEditorProps) => {
     }
   };
 
+  const getUsernameStatusIcon = () => {
+    switch (usernameStatus) {
+      case 'checking':
+        return <div className="w-4 h-4 border-2 border-gray-400 border-t-neon-blue rounded-full animate-spin" />;
+      case 'available':
+        return <Check className="w-4 h-4 text-green-500" />;
+      case 'taken':
+        return <X className="w-4 h-4 text-red-500" />;
+      case 'invalid':
+        return <X className="w-4 h-4 text-red-500" />;
+      default:
+        return null;
+    }
+  };
+
   const handleSave = async () => {
-    console.log('Starting save operation...');
-    
     if (usernameStatus === 'taken' || usernameStatus === 'invalid') {
       toast({
         title: "Erro no nome de usuário",
@@ -160,25 +190,22 @@ export const ProfileEditor = ({ onUpdate }: ProfileEditorProps) => {
         avatar_url: formData.avatar_url,
         username: formData.username,
       };
-
-      console.log('Saving profile data:', updateData);
       
       await new Promise((resolve, reject) => {
         updateProfile(updateData, {
-          onSuccess: (data) => {
-            console.log('Profile saved successfully:', data);
-            resolve(data);
-          },
-          onError: (error) => {
-            console.error('Profile save error:', error);
-            reject(error);
-          }
+          onSuccess: resolve,
+          onError: reject
         });
       });
 
-      if (profile?.id) {
-        localStorage.setItem(`social_links_${profile.id}`, JSON.stringify(socialLinks));
-        console.log('Social links saved to localStorage');
+      // Save active social links to database
+      const activeSocialLinks = socialLinksState.filter(link => link.active && link.url);
+      for (const link of activeSocialLinks) {
+        upsertSocialLink({
+          platform: link.platform,
+          url: link.url,
+          active: link.active,
+        });
       }
 
       const successMessage = formData.username 
@@ -191,7 +218,6 @@ export const ProfileEditor = ({ onUpdate }: ProfileEditorProps) => {
       });
 
     } catch (error) {
-      console.error('Save operation failed:', error);
       toast({
         title: "Erro ao salvar",
         description: "Ocorreu um erro ao salvar o perfil. Tente novamente.",
@@ -202,21 +228,6 @@ export const ProfileEditor = ({ onUpdate }: ProfileEditorProps) => {
 
   const displayName = formData.name || profile?.name || "Usuário";
   const displayAvatar = formData.avatar_url || profile?.avatar_url || "";
-
-  const getUsernameStatusIcon = () => {
-    switch (usernameStatus) {
-      case 'checking':
-        return <div className="w-4 h-4 border-2 border-gray-400 border-t-neon-blue rounded-full animate-spin" />;
-      case 'available':
-        return <Check className="w-4 h-4 text-green-500" />;
-      case 'taken':
-        return <X className="w-4 h-4 text-red-500" />;
-      case 'invalid':
-        return <X className="w-4 h-4 text-red-500" />;
-      default:
-        return null;
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -319,7 +330,7 @@ export const ProfileEditor = ({ onUpdate }: ProfileEditorProps) => {
           <CardTitle className="text-white">Redes Sociais</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {socialLinks.map((social, index) => (
+          {socialLinksState.map((social, index) => (
             <div key={social.platform} className="flex items-center space-x-4 p-4 bg-dark-bg rounded-lg border border-gray-700">
               <social.icon className={`w-5 h-5 ${social.color}`} />
               <div className="flex-1">
@@ -346,9 +357,9 @@ export const ProfileEditor = ({ onUpdate }: ProfileEditorProps) => {
         <Button 
           onClick={handleSave} 
           className="btn-neon"
-          disabled={isUpdating || usernameStatus === 'taken' || usernameStatus === 'invalid'}
+          disabled={isUpdating || isUpdatingSocial || usernameStatus === 'taken' || usernameStatus === 'invalid'}
         >
-          {isUpdating ? "Salvando..." : "Salvar Perfil"}
+          {isUpdating || isUpdatingSocial ? "Salvando..." : "Salvar Perfil"}
         </Button>
       </div>
     </div>

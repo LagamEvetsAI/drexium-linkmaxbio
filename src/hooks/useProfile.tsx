@@ -34,8 +34,6 @@ export const useProfile = () => {
     mutationFn: async (updates: ProfileUpdate) => {
       if (!user?.id) throw new Error('User not authenticated');
 
-      console.log('Updating profile with data:', updates);
-
       const { data, error } = await supabase
         .from('profiles')
         .update(updates)
@@ -48,11 +46,9 @@ export const useProfile = () => {
         throw error;
       }
       
-      console.log('Profile updated successfully:', data);
       return data;
     },
     onSuccess: (data) => {
-      console.log('Profile mutation success, invalidating queries...');
       queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
       queryClient.invalidateQueries({ queryKey: ['public-profile'] });
     },
@@ -78,14 +74,12 @@ export const useProfile = () => {
     if (!user?.id) return false;
     const hasSeenTutorial = localStorage.getItem(`tutorial-seen-${user.id}`);
     const skipTutorial = localStorage.getItem(`skip-tutorial-${user.id}`);
-    console.log('Tutorial check:', { hasSeenTutorial, skipTutorial, userId: user.id });
     return !hasSeenTutorial && !skipTutorial;
   };
 
   const markTutorialSeen = () => {
     if (user?.id) {
       localStorage.setItem(`tutorial-seen-${user.id}`, 'true');
-      console.log('Tutorial marked as seen for user:', user.id);
     }
   };
 
@@ -93,9 +87,21 @@ export const useProfile = () => {
     if (user?.id) {
       localStorage.setItem(`skip-tutorial-${user.id}`, 'true');
       localStorage.setItem(`tutorial-seen-${user.id}`, 'true');
-      console.log('Tutorial skipped permanently for user:', user.id);
     }
   };
+
+  // Clean up localStorage when user changes (including logout)
+  useEffect(() => {
+    if (!user?.id) {
+      // Clean up any leftover localStorage data when user logs out
+      const keys = Object.keys(localStorage);
+      keys.forEach(key => {
+        if (key.includes('social_links_') || key.includes('tutorial-') || key.includes('skip-tutorial-')) {
+          localStorage.removeItem(key);
+        }
+      });
+    }
+  }, [user?.id]);
 
   // Create a wrapped updateProfile function that accepts callbacks
   const updateProfile = (updates: ProfileUpdate, callbacks?: { onSuccess?: (data: any) => void, onError?: (error: any) => void }) => {

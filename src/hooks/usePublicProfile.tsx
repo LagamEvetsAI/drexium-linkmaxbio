@@ -8,8 +8,6 @@ export const usePublicProfile = (identifier: string) => {
     queryFn: async () => {
       if (!identifier) return null;
       
-      console.log('Fetching public profile for identifier:', identifier);
-      
       // First try to find by username
       let { data, error } = await supabase
         .from('profiles')
@@ -23,7 +21,6 @@ export const usePublicProfile = (identifier: string) => {
 
       // If not found by username, try by slug
       if (!data && !error) {
-        console.log('Profile not found by username, trying slug...');
         const slugResult = await supabase
           .from('profiles')
           .select('*')
@@ -38,20 +35,6 @@ export const usePublicProfile = (identifier: string) => {
         data = slugResult.data;
       }
       
-      console.log('Public profile data found:', data);
-      
-      // Load social links from localStorage if available
-      if (data?.id) {
-        const socialLinksData = localStorage.getItem(`social_links_${data.id}`);
-        if (socialLinksData) {
-          try {
-            (data as any).social_links = JSON.parse(socialLinksData);
-          } catch (e) {
-            console.error('Error parsing social links:', e);
-          }
-        }
-      }
-      
       return data;
     },
     enabled: !!identifier,
@@ -61,8 +44,6 @@ export const usePublicProfile = (identifier: string) => {
     queryKey: ['public-links', profile?.id],
     queryFn: async () => {
       if (!profile?.id) return [];
-      
-      console.log('Fetching links for profile:', profile.id);
       
       const { data, error } = await supabase
         .from('links')
@@ -76,7 +57,28 @@ export const usePublicProfile = (identifier: string) => {
         throw error;
       }
       
-      console.log('Links data:', data);
+      return data;
+    },
+    enabled: !!profile?.id,
+  });
+
+  const { data: socialLinks = [], isLoading: socialLoading } = useQuery({
+    queryKey: ['public-social-links', profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return [];
+      
+      const { data, error } = await supabase
+        .from('social_links')
+        .select('*')
+        .eq('user_id', profile.id)
+        .eq('active', true)
+        .order('platform', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching social links:', error);
+        throw error;
+      }
+      
       return data;
     },
     enabled: !!profile?.id,
@@ -85,7 +87,8 @@ export const usePublicProfile = (identifier: string) => {
   return {
     profile,
     links,
-    isLoading: profileLoading || linksLoading,
+    socialLinks,
+    isLoading: profileLoading || linksLoading || socialLoading,
     error: profileError || linksError,
   };
 };

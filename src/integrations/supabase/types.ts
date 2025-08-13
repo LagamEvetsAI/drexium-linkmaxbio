@@ -146,6 +146,36 @@ export type Database = {
         }
         Relationships: []
       }
+      social_links: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          platform: string
+          updated_at: string
+          url: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          platform: string
+          updated_at?: string
+          url: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          platform?: string
+          updated_at?: string
+          url?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
