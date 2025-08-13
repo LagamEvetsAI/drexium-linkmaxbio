@@ -72,7 +72,7 @@ const PublicProfile = () => {
     );
   }
 
-  // More detailed error logging
+  // More detailed error logging and better error handling
   if (error || !profile) {
     console.error('PublicProfile error or no profile found:', {
       identifier,
@@ -80,7 +80,22 @@ const PublicProfile = () => {
       profile,
       currentUrl: window.location.href
     });
-    return <Navigate to="/404" replace />;
+    
+    // Instead of redirecting to /404, show a user-friendly error message
+    return (
+      <div className="min-h-screen bg-dark-bg flex items-center justify-center px-4">
+        <div className="text-center space-y-4">
+          <h1 className="text-4xl font-bold text-white">Perfil não encontrado</h1>
+          <p className="text-gray-400">O perfil que você está procurando não existe ou não está disponível.</p>
+          <a 
+            href="/" 
+            className="inline-block px-6 py-3 bg-neon-blue text-white rounded-lg hover:bg-neon-blue/80 transition-colors"
+          >
+            Voltar ao início
+          </a>
+        </div>
+      </div>
+    );
   }
 
   return (
